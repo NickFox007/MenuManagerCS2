@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Core.Capabilities;
@@ -9,12 +9,12 @@ using MenuManager;
 public class MenuManagerTest : BasePlugin
 {
     public override string ModuleName => "MenuManager [Test]";
-    public override string ModuleVersion => "0.1beta";
+    public override string ModuleVersion => "0.2";
     public override string ModuleAuthor => "Nick Fox";
     public override string ModuleDescription => "MenuManager Test Module";
 
     private IMenuApi? _api;
-    private readonly PluginCapability<IMenuApi?> _pluginCapability = new("menu:nfcore");
+    private readonly PluginCapability<IMenuApi?> _pluginCapability = new("menu:nfcore");    
 
     public override void OnAllPluginsLoaded(bool hotReload)
     {
@@ -31,29 +31,8 @@ public class MenuManagerTest : BasePlugin
             for (int i = 0; i < 10; i++)
                 menu.AddMenuOption($"itemline{i}", (player, option) => { player.PrintToChat($"Selected: {option.Text}"); });
             menu.Open(player);
-           
-
-            //var menu = _api.Menu_CreateGameMenu("Test menu", player, callback);
-
-            //for (int i = 1; i < 14; i++)
-                //menu.AddItem(i.ToString(), "Line" + i.ToString());
                 
         }
-        
-         
 
     }
-    /*
-    public override void Load(bool hotReload)
-    {
-        //_api = new CApi(this);
-        //Capabilities.RegisterPluginCapability(_pluginCapability, () => _api);
-    }
-
-    public override void Unload(bool hotReload)
-    {
-        //_api = new CApi(this);
-
-
-    }*/
 }
