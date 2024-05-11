@@ -5,12 +5,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PlayerSettings;
+
 
 namespace MenuManager
 {
     internal static class Misc
     {
 
+        private static ISettingsApi? settings;
+        public static void SetSettingApi(ISettingsApi _settings)
+        {
+            settings = _settings;
+        }
         public static List<CCSPlayerController> GetValidPlayers()
         {
             var players = new List<CCSPlayerController>();
@@ -24,8 +31,14 @@ namespace MenuManager
         }
 
         public static MenuType GetCurrentPlayerMenu(CCSPlayerController player)
+        {         
+            var res = settings.GetPlayerSettingsValue(player, "menutype", "ButtonMenu");
+            return (MenuType)Enum.Parse(typeof(MenuType), res);
+        }
+
+        public static void SelectPlayerMenu(CCSPlayerController player, MenuType type)
         {
-            return MenuType.ButtonMenu; // Заглушка
+            settings.SetPlayerSettingsValue(player, "menutype", Enum.GetName(type.GetType(), type));
         }
     }
 
