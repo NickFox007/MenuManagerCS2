@@ -16,17 +16,18 @@ namespace MenuManager
             MenuOptions = new List<ChatMenuOption>();
             Title = _title;
         }
-
         public string Title { get; set; }
 
         public List<ChatMenuOption> MenuOptions { get; }
 
         public bool ExitButton { get; set; }
 
+        public PostSelectAction PostSelectAction { get; set; } = PostSelectAction.Nothing;
+
         public ChatMenuOption AddMenuOption(string display, Action<CCSPlayerController, ChatMenuOption> onSelect, bool disabled = false)
         {
             var option = new ChatMenuOption(display, disabled, onSelect);
-            MenuOptions.Add(option);
+            MenuOptions.Add(option);            
             return option;            
         }
 

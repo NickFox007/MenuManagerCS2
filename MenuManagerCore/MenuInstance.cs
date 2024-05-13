@@ -29,6 +29,8 @@ namespace MenuManager
 
         public bool ExitButton { get; set; }
 
+        public PostSelectAction PostSelectAction { get; set; } = PostSelectAction.Nothing;
+
         public ChatMenuOption AddMenuOption(string display, Action<CCSPlayerController, ChatMenuOption> onSelect, bool disabled = false)
         {
             var option = new ChatMenuOption(display, disabled, (player, opt) => { onSelect(player, opt); });
@@ -58,7 +60,7 @@ namespace MenuManager
             }
 
             menu.ExitButton = ExitButton;
-
+            menu.PostSelectAction = PostSelectAction;            
 
             if (BackAction != null)
                 menu.AddMenuOption("Назад", OnBackAction);

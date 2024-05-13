@@ -94,17 +94,21 @@ namespace MenuManager
         }
 
         public void OnSelect()
-        {
+        {            
             menu.MenuOptions[selected].OnSelect(player, menu.MenuOptions[selected]);
+            if (menu.PostSelectAction == PostSelectAction.Close)
+                Close();
         }
 
         public void Close()
-        {
+        {            
             closed = true;
         }
 
         public bool Closed()
-        { return closed; }
+        {
+            return closed;
+        }
 
     }
 }

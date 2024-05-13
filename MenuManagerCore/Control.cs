@@ -54,7 +54,7 @@ namespace MenuManager
                     var player = menu.GetPlayer();
                     if(!Misc.IsValidPlayer(player))
                     {
-                        menus.Remove(menu);
+                        menus.RemoveAt(i);
                         i--;
                         continue;
                     }
@@ -81,8 +81,9 @@ namespace MenuManager
                         if (buttons.HasFlag(PlayerButtons.Reload) || menu.Closed())
                         {
                             player.PlayerPawn.Value.VelocityModifier = menu.GetMod();
-                            menus.Remove(menu);
+                            menus.RemoveAt(i);
                             i--;
+                            continue;
                         }
                     }
 
