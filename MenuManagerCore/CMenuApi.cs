@@ -11,19 +11,32 @@ namespace MenuManager
 {
     internal class CMenuApi: IMenuApi
     {
-        //BasePlugin plugin;
+        MenuManagerCore plugin;
         //public CApi(BasePlugin _plugin)
-        public CMenuApi()
+        public CMenuApi(MenuManagerCore _plugin)
         {
-            //plugin = _plugin;
+            plugin = _plugin;
         }
 
-        public IMenu NewMenu(string title, MenuType forcetype = MenuType.Default)
+        public IMenu NewMenu(string title, Action<CCSPlayerController> back_action = null)
         {
-            return new MenuInstance(title, forcetype);
+            return new MenuInstance(title, back_action);
         }
 
+        public IMenu NewMenuForcetype(string title, MenuType type, Action<CCSPlayerController> back_action = null)
+        {
+            return new MenuInstance(title, back_action, type);
+        }
 
+        public void CloseMenu(CCSPlayerController player)
+        {
+            Control.CloseMenu(player);
+        }
+
+        public MenuType GetMenuType(CCSPlayerController player)
+        {
+            return Misc.GetCurrentPlayerMenu(player);
+        }
        
     }
 }

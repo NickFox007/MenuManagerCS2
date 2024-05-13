@@ -52,6 +52,12 @@ namespace MenuManager
                 {
                     var menu = menus[i];
                     var player = menu.GetPlayer();
+                    if(!Misc.IsValidPlayer(player))
+                    {
+                        menus.Remove(menu);
+                        i--;
+                        continue;
+                    }
                     var buttons = player.Buttons;
                     player.PlayerPawn.Value.VelocityModifier = 0.0f;
                     // For ButtonMenu
@@ -72,11 +78,9 @@ namespace MenuManager
                         else if (buttons.HasFlag(PlayerButtons.Use))
                             menu.OnSelect();
 
-
-
-
                         if (buttons.HasFlag(PlayerButtons.Reload) || menu.Closed())
                         {
+                            player.PlayerPawn.Value.VelocityModifier = menu.GetMod();
                             menus.Remove(menu);
                             i--;
                         }
@@ -85,9 +89,21 @@ namespace MenuManager
                     menu.GetPlayer().PrintToCenterHtml(menu.GetText());
                 }
             }
-        }    
+        }
+
+        public static void CloseMenu(CCSPlayerController player)
+        {
+            CounterStrikeSharp.API.Modules.Menu.MenuManager.CloseActiveMenu(player);
+            for (int i = 0; i < menus.Count; i++)
+            {
+                if (menus[i].GetPlayer() == player)
+                {
+                    menus[i].Close();
+                }
+            }            
+        }
         
-        internal static void SetPlugin(BasePlugin _hPlugin)
+        internal static void Init(BasePlugin _hPlugin)
         {
             hPlugin = _hPlugin;
         }

@@ -11,7 +11,7 @@ namespace MenuManager;
 public class MenuManagerCore : BasePlugin
 {
     public override string ModuleName => "MenuManager [Core]";
-    public override string ModuleVersion => "0.4";
+    public override string ModuleVersion => "0.5";
     public override string ModuleAuthor => "Nick Fox";
     public override string ModuleDescription => "All menus interacts in one core";
 
@@ -24,8 +24,8 @@ public class MenuManagerCore : BasePlugin
         _api = new CMenuApi(this);
         Capabilities.RegisterPluginCapability(_pluginCapability, () => _api);
 
-        Control.SetPlugin(this);
-        RegisterListener<Listeners.OnTick>(() => { Control.OnPluginTick(); });        
+        Control.Init(this);
+        RegisterListener<Listeners.OnTick>(() => { Control.OnPluginTick(); });
     }
 
     public override void OnAllPluginsLoaded(bool hotReload)
@@ -50,7 +50,6 @@ public class MenuManagerCore : BasePlugin
             menu.AddMenuOption("Стандартное (центр)", (player, option) => { Misc.SelectPlayerMenu(player, MenuType.CenterMenu); });
             menu.AddMenuOption("Управляемое (центр)", (player, option) => { Misc.SelectPlayerMenu(player, MenuType.ButtonMenu); });
             menu.Open(player);
-
         }
 
     }

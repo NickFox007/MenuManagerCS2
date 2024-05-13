@@ -10,13 +10,17 @@ namespace MenuManager
 {
     public class MenuInstance : IMenu
     {
+        Action<CCSPlayerController> BackAction;
+
         MenuType forcetype;
 
-        public MenuInstance(string _title, MenuType _forcetype = MenuType.Default)
+        public MenuInstance(string _title, Action<CCSPlayerController> _back_action = null, MenuType _forcetype = MenuType.Default)
         {
             Title = _title;
-            forcetype = _forcetype;
+            ExitButton = true;
             MenuOptions = new List<ChatMenuOption>();
+            BackAction = _back_action;
+            forcetype = _forcetype;
         }
 
         public string Title {get;set;}
@@ -32,19 +36,32 @@ namespace MenuManager
             return option;            
         }
 
+        private void OnBackAction(CCSPlayerController player, ChatMenuOption option)
+        {
+            BackAction(player);
+        }
+
         public void Open(CCSPlayerController player)
         {
+
+            IMenu menu = null;
+
             if (forcetype == MenuType.Default)
                 forcetype = Misc.GetCurrentPlayerMenu(player);
 
-            IMenu menu = null;
-            switch(forcetype)
+            switch (forcetype)
             {
                 case MenuType.ChatMenu: menu = new ChatMenu(Title); break;
                 case MenuType.ConsoleMenu: menu = new ConsoleMenu(Title);  break;
                 case MenuType.CenterMenu: menu = new CenterHtmlMenu(Title, Control.GetPlugin()); break;
                 case MenuType.ButtonMenu: menu = new ButtonMenu(Title);  break;
             }
+
+            menu.ExitButton = ExitButton;
+
+
+            if (BackAction != null)
+                menu.AddMenuOption("Назад", OnBackAction);
 
             foreach(var option in MenuOptions)
                 menu.AddMenuOption(option.Text, option.OnSelect, option.Disabled);
@@ -58,11 +75,5 @@ namespace MenuManager
             foreach (var player in Misc.GetValidPlayers())
                 Open(player);
         }
-
-        public MenuType Type()
-        {
-            return forcetype;
-        }
-
     }
 }

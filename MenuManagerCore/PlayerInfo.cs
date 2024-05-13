@@ -26,10 +26,10 @@ namespace MenuManager
             menu = _menu;
             prev_mod = player.PlayerPawn.Value.VelocityModifier;
 
+            closed = false;
             offset = 0;
             selected = 0;  
-            closed = false;
-            prev_buttons = "";
+            prev_buttons = player.Buttons.ToString();
         }
 
         public CCSPlayerController GetPlayer()
@@ -96,6 +96,10 @@ namespace MenuManager
         public void OnSelect()
         {
             menu.MenuOptions[selected].OnSelect(player, menu.MenuOptions[selected]);
+        }
+
+        public void Close()
+        {
             closed = true;
         }
 
