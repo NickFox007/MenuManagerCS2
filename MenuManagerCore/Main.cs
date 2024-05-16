@@ -11,7 +11,7 @@ namespace MenuManager;
 public class MenuManagerCore : BasePlugin
 {
     public override string ModuleName => "MenuManager [Core]";
-    public override string ModuleVersion => "0.5.1";
+    public override string ModuleVersion => "0.6";
     public override string ModuleAuthor => "Nick Fox";
     public override string ModuleDescription => "All menus interacts in one core";
 
@@ -45,6 +45,7 @@ public class MenuManagerCore : BasePlugin
         if (player != null)
         {
             var menu = _api.NewMenu("Выбор меню");
+            menu.PostSelectAction = PostSelectAction.Close;
             menu.AddMenuOption("Консольное", (player, option) => { Misc.SelectPlayerMenu(player, MenuType.ConsoleMenu); });
             menu.AddMenuOption("Чат-меню", (player, option) => { Misc.SelectPlayerMenu(player, MenuType.ChatMenu); });
             menu.AddMenuOption("Стандартное (центр)", (player, option) => { Misc.SelectPlayerMenu(player, MenuType.CenterMenu); });

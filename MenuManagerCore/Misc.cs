@@ -39,9 +39,8 @@ namespace MenuManager
         public static void SelectPlayerMenu(CCSPlayerController player, MenuType type)
         {
             settings.SetPlayerSettingsValue(player, "menutype", Enum.GetName(type.GetType(), type));
-
-            
-            player.PrintToConsole($"Выбран вид меню: {Misc.GetMenuTypeName(type)}");
+                        
+            player.PrintToChat($"Выбран вид меню: {Misc.GetMenuTypeName(type)}");
         }
 
         public static string GetMenuTypeName(MenuType type)
