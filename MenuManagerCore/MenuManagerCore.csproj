@@ -17,14 +17,14 @@
     <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="8.0.4" />
   </ItemGroup>
 
-<ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\MenuManagerApi\MenuManagerApi.csproj" />
   </ItemGroup>
 
-<ItemGroup>
-  <Reference Include="PlayerSettingsApi">
-    <HintPath>..\PlayerSettingsApi.dll</HintPath>
-  </Reference>
-</ItemGroup>
+  <ItemGroup>
+    <Reference Include="PlayerSettingsApi">
+      <HintPath>..\PlayerSettingsApi.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 
 </Project>

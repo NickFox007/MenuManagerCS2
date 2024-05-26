@@ -94,10 +94,13 @@ namespace MenuManager
         }
 
         public void OnSelect()
-        {            
-            menu.MenuOptions[selected].OnSelect(player, menu.MenuOptions[selected]);
-            if (menu.PostSelectAction == PostSelectAction.Close)
-                Close();
+        {
+            if(!menu.MenuOptions[selected].Disabled)
+            {
+                menu.MenuOptions[selected].OnSelect(player, menu.MenuOptions[selected]);
+                if (menu.PostSelectAction == PostSelectAction.Close)
+                    Close();
+            }
         }
 
         public void Close()
