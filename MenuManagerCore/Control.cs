@@ -51,6 +51,12 @@ namespace MenuManager
                 for(int i = 0; i < menus.Count; i++)
                 {
                     var menu = menus[i];
+                    if(menu == null)
+                    {
+                        menus.RemoveAt(i);
+                        i--;
+                        continue;
+                    }
                     var player = menu.GetPlayer();
                     if(!Misc.IsValidPlayer(player))
                     {
