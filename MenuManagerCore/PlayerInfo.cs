@@ -1,5 +1,6 @@
 ﻿using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Menu;
+using CounterStrikeSharp.API.Core.Translations;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
@@ -48,6 +49,7 @@ namespace MenuManager
             for (int i = offset; i < Math.Min(offset + 7, menu.MenuOptions.Count); i++)
             {
                 var line = menu.MenuOptions[i].Text;
+                if (menu.MenuOptions[i].Disabled) line = $"<font color='#aaaaaa'>{line}</font>";
                 if (i == selected) line = $"► {line} ◄";
 
                 text = text + "<br>" + line;
@@ -55,7 +57,7 @@ namespace MenuManager
 
             //text = text + "<br>" + "W - вверх D - вниз<br>E - выбор R - выход";
 
-            return text + "</font><br><font class='fontSize-s'>W - вверх S - вниз E - выбор R - выход</font>";
+            return text + $"</font><br><font class='fontSize-s'>{Control.GetPlugin().Localizer["menumanager.footer"]}</font>";
         }
 
         public bool MoveDown(int lines = 1)
@@ -94,10 +96,13 @@ namespace MenuManager
         }
 
         public void OnSelect()
-        {            
-            menu.MenuOptions[selected].OnSelect(player, menu.MenuOptions[selected]);
-            if (menu.PostSelectAction == PostSelectAction.Close)
-                Close();
+        {
+            if (!menu.MenuOptions[selected].Disabled)
+            {
+                menu.MenuOptions[selected].OnSelect(player, menu.MenuOptions[selected]);
+                if (menu.PostSelectAction == PostSelectAction.Close)
+                    Close();
+            }
         }
 
         public void Close()

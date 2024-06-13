@@ -11,7 +11,7 @@ namespace MenuManager;
 public class MenuManagerCore : BasePlugin
 {
     public override string ModuleName => "MenuManager [Core]";
-    public override string ModuleVersion => "0.6.1";
+    public override string ModuleVersion => "0.7";
     public override string ModuleAuthor => "Nick Fox";
     public override string ModuleDescription => "All menus interacts in one core";
 
@@ -44,12 +44,12 @@ public class MenuManagerCore : BasePlugin
     {
         if (player != null)
         {
-            var menu = _api.NewMenu("Выбор меню");
+            var menu = _api.NewMenu(Localizer["menumanager.select_type"]);
             menu.PostSelectAction = PostSelectAction.Close;
-            menu.AddMenuOption("Консольное", (player, option) => { Misc.SelectPlayerMenu(player, MenuType.ConsoleMenu); });
-            menu.AddMenuOption("Чат-меню", (player, option) => { Misc.SelectPlayerMenu(player, MenuType.ChatMenu); });
-            menu.AddMenuOption("Стандартное (центр)", (player, option) => { Misc.SelectPlayerMenu(player, MenuType.CenterMenu); });
-            menu.AddMenuOption("Управляемое (центр)", (player, option) => { Misc.SelectPlayerMenu(player, MenuType.ButtonMenu); });
+            menu.AddMenuOption(Localizer["menumanager.console"], (player, option) => { Misc.SelectPlayerMenu(player, MenuType.ConsoleMenu); });
+            menu.AddMenuOption(Localizer["menumanager.chat"], (player, option) => { Misc.SelectPlayerMenu(player, MenuType.ChatMenu); });
+            menu.AddMenuOption(Localizer["menumanager.center"], (player, option) => { Misc.SelectPlayerMenu(player, MenuType.CenterMenu); });
+            menu.AddMenuOption(Localizer["menumanager.control"], (player, option) => { Misc.SelectPlayerMenu(player, MenuType.ButtonMenu); });
             menu.Open(player);
         }
 
