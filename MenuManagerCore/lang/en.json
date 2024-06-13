@@ -5,5 +5,6 @@
 	"menumanager.chat":"Chat menu",
 	"menumanager.center":"Center (Standard)",
 	"menumanager.control":"Center (Controlling)",
-	
+	"menumanager.select_type":"Selected menu-type:",
+	"menumanager.back":"Back",
 }

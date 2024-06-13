@@ -5,4 +5,6 @@
 	"menumanager.chat":"Чат-меню",
 	"menumanager.center":"Центр (Стандартное)",
 	"menumanager.control":"Центр (Управляемое)",
+	"menumanager.selected_type":"Выбранный тип меню:",
+	"menumanager.back":"Назад",
 }
