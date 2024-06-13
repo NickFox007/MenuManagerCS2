@@ -63,7 +63,7 @@ namespace MenuManager
             menu.PostSelectAction = PostSelectAction;            
 
             if (BackAction != null)
-                menu.AddMenuOption("Назад", OnBackAction);
+                menu.AddMenuOption(Control.GetPlugin().Localizer["menumanager.back"], OnBackAction);
 
             foreach(var option in MenuOptions)
                 menu.AddMenuOption(option.Text, option.OnSelect, option.Disabled);

@@ -11,7 +11,7 @@ namespace MenuManager;
 public class MenuManagerCore : BasePlugin
 {
     public override string ModuleName => "MenuManager [Core]";
-    public override string ModuleVersion => "0.7";
+    public override string ModuleVersion => "0.7.1";
     public override string ModuleAuthor => "Nick Fox";
     public override string ModuleDescription => "All menus interacts in one core";
 

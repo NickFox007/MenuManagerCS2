@@ -39,19 +39,19 @@ namespace MenuManager
         public static void SelectPlayerMenu(CCSPlayerController player, MenuType type)
         {
             settings.SetPlayerSettingsValue(player, "menutype", Enum.GetName(type.GetType(), type));
-                        
-            player.PrintToChat($"Выбран вид меню: {Misc.GetMenuTypeName(type)}");
+
+            player.PrintToChat($"{Control.GetPlugin().Localizer["menumanager.selected_type"]} {Misc.GetMenuTypeName(type)}");
         }
 
         public static string GetMenuTypeName(MenuType type)
         {
             switch(type)
             {
-                case MenuType.ChatMenu: return "Чат-меню";
-                case MenuType.ConsoleMenu: return "Консольное";
-                case MenuType.CenterMenu: return "Центр (стандартное)";
-                case MenuType.ButtonMenu: return "Центр (управляемое)";
-                default: return "Неизвестное";
+                case MenuType.ChatMenu: return Control.GetPlugin().Localizer["menumanager.chat"];
+                case MenuType.ConsoleMenu: return Control.GetPlugin().Localizer["menumanager.console"];
+                case MenuType.CenterMenu: return Control.GetPlugin().Localizer["menumanager.center"];
+                case MenuType.ButtonMenu: return Control.GetPlugin().Localizer["menumanager.control"];
+                default: return "Undefined";
             }
         }
 
