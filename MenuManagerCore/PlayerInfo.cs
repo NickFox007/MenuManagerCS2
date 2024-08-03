@@ -7,6 +7,9 @@ using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CounterStrikeSharp.API;
+using Serilog.Core;
+using Microsoft.Extensions.Logging;
 
 namespace MenuManager
 {
@@ -46,15 +49,18 @@ namespace MenuManager
         public string GetText()
         {
             string text = $"<font class='mono-spaced-font'>{menu.Title}</font><font class='fontSize-sm stratum-font'>";
-            for (int i = offset; i < Math.Min(offset + 7, menu.MenuOptions.Count); i++)
-            {
-                var line = menu.MenuOptions[i].Text;
-                if (menu.MenuOptions[i].Disabled) line = $"<font color='#aaaaaa'>{line}</font>";
-                if (i == selected) line = $"► {line} ◄";
+            
+            if(menu.MenuOptions.Count > 0)            
+                for (int i = offset; i < Math.Min(offset + 7, menu.MenuOptions.Count); i++)
+                {
+                    var line = menu.MenuOptions[i].Text;
+                    if (menu.MenuOptions[i].Disabled) line = $"<font color='#aaaaaa'>{line}</font>";
+                    if (i == selected) line = $"► {line} ◄";
 
-                text = text + "<br>" + line;
-            }
-
+                    text = text + "<br>" + line;
+                }
+            else
+                text = $"{text}<br><font color='#aaaaaa'>{Control.GetPlugin().Localizer["menumanager.empty"]}</font>";
             //text = text + "<br>" + "W - вверх D - вниз<br>E - выбор R - выход";
 
             return text + $"</font><br><font class='fontSize-s'>{Control.GetPlugin().Localizer["menumanager.footer"]}</font>";
@@ -96,12 +102,20 @@ namespace MenuManager
         }
 
         public void OnSelect()
-        {
-            if (!menu.MenuOptions[selected].Disabled)
+        {            
+            if (selected < menu.MenuOptions.Count && !menu.MenuOptions[selected].Disabled)
             {
-                menu.MenuOptions[selected].OnSelect(player, menu.MenuOptions[selected]);
+                try
+                {
+                    menu.MenuOptions[selected].OnSelect(player, menu.MenuOptions[selected]);                    
+                }
+                catch(Exception e) 
+                {
+                    Control.GetPlugin().Logger.LogInformation($"Error was caused in calling plugin [{e.Message}]\n{e.StackTrace}");
+                }
                 if (menu.PostSelectAction == PostSelectAction.Close)
                     Close();
+
             }
         }
 

@@ -6,13 +6,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using PlayerSettings;
+using Microsoft.Extensions.Logging;
 
 
 namespace MenuManager
 {
     internal static class Misc
     {
-
+        private static string DefaultMenu = "ButtonMenu";
         private static ISettingsApi? settings;
         public static void SetSettingApi(ISettingsApi _settings)
         {
@@ -30,9 +31,20 @@ namespace MenuManager
             return players;
         }
 
+        public static void SetDefaultMenu(string DefaultMenu)
+        {
+            var menu_types = new List<string>(["ButtonMenu", "CenterMenu", "ConsoleMenu", "ChatMenu"]);
+            if (menu_types.Contains(DefaultMenu))
+                Misc.DefaultMenu = DefaultMenu;
+            else
+            {
+                Control.GetPlugin().Logger.LogInformation($"Invalid menu type: {DefaultMenu}. Using default menu {Misc.DefaultMenu}");
+            }
+        }
+
         public static MenuType GetCurrentPlayerMenu(CCSPlayerController player)
         {         
-            var res = settings.GetPlayerSettingsValue(player, "menutype", "ButtonMenu");
+            var res = settings.GetPlayerSettingsValue(player, "menutype", DefaultMenu);
             return (MenuType)Enum.Parse(typeof(MenuType), res);
         }
 

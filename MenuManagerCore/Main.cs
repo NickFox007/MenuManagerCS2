@@ -4,16 +4,33 @@ using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Core.Capabilities;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Menu;
+using Microsoft.Extensions.Logging;
 using PlayerSettings;
+using System.Text.Json.Serialization;
 
 
 namespace MenuManager;
-public class MenuManagerCore : BasePlugin
+public class PluginConfig : BasePluginConfig
+{
+    [JsonPropertyName("DefaultMenu")] public string DefaultMenu { get; set; } = "ButtonMenu";    
+}
+
+public class MenuManagerCore : BasePlugin, IPluginConfig<PluginConfig>
 {
     public override string ModuleName => "MenuManager [Core]";
-    public override string ModuleVersion => "0.7.1";
+    public override string ModuleVersion => "0.8";
     public override string ModuleAuthor => "Nick Fox";
     public override string ModuleDescription => "All menus interacts in one core";
+
+    public PluginConfig Config { get; set; }
+
+    public void OnConfigParsed(PluginConfig config)
+    {
+        Config = config;
+
+        Misc.SetDefaultMenu(Config.DefaultMenu);
+    }
+
 
     private IMenuApi? _api;
     private ISettingsApi? _settings;
@@ -25,8 +42,9 @@ public class MenuManagerCore : BasePlugin
         Capabilities.RegisterPluginCapability(_pluginCapability, () => _api);
 
         Control.Init(this);
-        RegisterListener<Listeners.OnTick>(() => { Control.OnPluginTick(); });
+        RegisterListener<Listeners.OnTick>(Control.OnPluginTick);
     }
+
 
     public override void OnAllPluginsLoaded(bool hotReload)
     {
@@ -54,4 +72,5 @@ public class MenuManagerCore : BasePlugin
         }
 
     }
+
 }
