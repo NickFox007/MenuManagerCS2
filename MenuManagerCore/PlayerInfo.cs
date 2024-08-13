@@ -81,7 +81,11 @@ namespace MenuManager
 
         public bool MoveUp(int lines = 1)
         {
-            if (selected == 0) return false;
+            if (selected < 1)
+            {
+                selected = 0;
+                return false;                
+            }
 
             selected = Math.Max(selected - lines, 0);
             if (selected < offset) offset = selected;
@@ -103,7 +107,7 @@ namespace MenuManager
 
         public void OnSelect()
         {            
-            if (selected < menu.MenuOptions.Count && !menu.MenuOptions[selected].Disabled)
+            if (selected > -1 && selected < menu.MenuOptions.Count && !menu.MenuOptions[selected].Disabled)
             {
                 try
                 {

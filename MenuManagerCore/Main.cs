@@ -18,7 +18,7 @@ public class PluginConfig : BasePluginConfig
 public class MenuManagerCore : BasePlugin, IPluginConfig<PluginConfig>
 {
     public override string ModuleName => "MenuManager [Core]";
-    public override string ModuleVersion => "0.8";
+    public override string ModuleVersion => "0.8.1";
     public override string ModuleAuthor => "Nick Fox";
     public override string ModuleDescription => "All menus interacts in one core";
 
