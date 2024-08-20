@@ -13,7 +13,7 @@ namespace MenuManager
     internal static class Control
     {
         public static List<PlayerInfo> menus = new List<PlayerInfo>();
-        private static BasePlugin hPlugin;
+        private static MenuManagerCore hPlugin;
 
         public static void AddMenu(CCSPlayerController player, ButtonMenu inst)
         {
@@ -86,6 +86,7 @@ namespace MenuManager
 
                         if (buttons.HasFlag(PlayerButtons.Reload) || menu.Closed())
                         {
+                            menu.Close(true);
                             player.PlayerPawn.Value.VelocityModifier = menu.GetMod();
                             menus.RemoveAt(i);
                             i--;
@@ -96,6 +97,11 @@ namespace MenuManager
                     menu.GetPlayer().PrintToCenterHtml(menu.GetText());
                 }
             }
+        }
+
+        public static void PlaySound(CCSPlayerController player, string sound)
+        {
+            player.ExecuteClientCommand("play " + sound);
         }
 
         public static void CloseMenu(CCSPlayerController player)
@@ -110,12 +116,12 @@ namespace MenuManager
             }            
         }
         
-        internal static void Init(BasePlugin _hPlugin)
+        internal static void Init(MenuManagerCore _hPlugin)
         {
             hPlugin = _hPlugin;
         }
 
-        internal static BasePlugin GetPlugin()
+        internal static MenuManagerCore GetPlugin()
         {
             return hPlugin;
         }

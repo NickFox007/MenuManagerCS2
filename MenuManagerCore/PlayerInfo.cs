@@ -68,6 +68,9 @@ namespace MenuManager
 
         public bool MoveDown(int lines = 1)
         {
+            if (Control.GetPlugin().Config.SoundScroll != "")
+                Control.PlaySound(player, Control.GetPlugin().Config.SoundScroll);
+
             if (selected == menu.MenuOptions.Count - 1) return false;
 
             selected = Math.Min(selected + lines, menu.MenuOptions.Count-1);
@@ -81,6 +84,8 @@ namespace MenuManager
 
         public bool MoveUp(int lines = 1)
         {
+            if (Control.GetPlugin().Config.SoundScroll != "")
+                Control.PlaySound(player, Control.GetPlugin().Config.SoundScroll);
             if (selected < 1)
             {
                 selected = 0;
@@ -107,25 +112,40 @@ namespace MenuManager
 
         public void OnSelect()
         {            
-            if (selected > -1 && selected < menu.MenuOptions.Count && !menu.MenuOptions[selected].Disabled)
+            if (selected > -1 && selected < menu.MenuOptions.Count)
             {
-                try
+                if (menu.MenuOptions[selected].Disabled)
                 {
-                    menu.MenuOptions[selected].OnSelect(player, menu.MenuOptions[selected]);                    
+                    if (Control.GetPlugin().Config.SoundDisabled != "")
+                        Control.PlaySound(player, Control.GetPlugin().Config.SoundDisabled);
                 }
-                catch(Exception e) 
+                else
                 {
-                    Control.GetPlugin().Logger.LogInformation($"Error was caused in calling plugin [{e.Message}]\n{e.StackTrace}");
+                    if (Control.GetPlugin().Config.SoundClick != "")
+                        Control.PlaySound(player, Control.GetPlugin().Config.SoundClick);
+                    try
+                    {
+                        menu.MenuOptions[selected].OnSelect(player, menu.MenuOptions[selected]);
+                    }
+                    catch (Exception e)
+                    {
+                        Control.GetPlugin().Logger.LogInformation($"Error was caused in calling plugin [{e.Message}]\n{e.StackTrace}");
+                    }
+                    if (menu.PostSelectAction == PostSelectAction.Close)
+                        Close();
                 }
-                if (menu.PostSelectAction == PostSelectAction.Close)
-                    Close();
 
             }
         }
 
-        public void Close()
-        {            
-            closed = true;
+        public void Close(bool withsound = false)
+        {
+            if (!closed)
+            {
+                if (Control.GetPlugin().Config.SoundExit != "" && withsound)
+                    Control.PlaySound(player, Control.GetPlugin().Config.SoundExit);
+                closed = true;
+            }
         }
 
         public bool Closed()

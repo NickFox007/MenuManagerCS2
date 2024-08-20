@@ -40,6 +40,8 @@ namespace MenuManager
 
         private void OnBackAction(CCSPlayerController player, ChatMenuOption option)
         {
+            if (Control.GetPlugin().Config.SoundBack != "")
+                Control.PlaySound(player, Control.GetPlugin().Config.SoundBack);
             BackAction(player);
         }
 
@@ -67,7 +69,7 @@ namespace MenuManager
 
             foreach(var option in MenuOptions)
                 menu.AddMenuOption(option.Text, option.OnSelect, option.Disabled);
-            //Control.AddMenu(player, this, forcetype);
+            
             menu.Open(player);
 
         }

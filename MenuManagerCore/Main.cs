@@ -12,13 +12,18 @@ using System.Text.Json.Serialization;
 namespace MenuManager;
 public class PluginConfig : BasePluginConfig
 {
-    [JsonPropertyName("DefaultMenu")] public string DefaultMenu { get; set; } = "ButtonMenu";    
+    [JsonPropertyName("DefaultMenu")] public string DefaultMenu { get; set; } = "ButtonMenu";
+    [JsonPropertyName("SoundScroll")] public string SoundScroll { get; set; } = "";
+    [JsonPropertyName("SoundClick")] public string SoundClick { get; set; } = "";
+    [JsonPropertyName("SoundDisabled")] public string SoundDisabled { get; set; } = "";
+    [JsonPropertyName("SoundBack")] public string SoundBack { get; set; } = "";
+    [JsonPropertyName("SoundExit")] public string SoundExit { get; set; } = "";
 }
 
 public class MenuManagerCore : BasePlugin, IPluginConfig<PluginConfig>
 {
     public override string ModuleName => "MenuManager [Core]";
-    public override string ModuleVersion => "0.8.1";
+    public override string ModuleVersion => "0.9";
     public override string ModuleAuthor => "Nick Fox";
     public override string ModuleDescription => "All menus interacts in one core";
 
@@ -30,7 +35,6 @@ public class MenuManagerCore : BasePlugin, IPluginConfig<PluginConfig>
 
         Misc.SetDefaultMenu(Config.DefaultMenu);
     }
-
 
     private IMenuApi? _api;
     private ISettingsApi? _settings;
@@ -44,7 +48,6 @@ public class MenuManagerCore : BasePlugin, IPluginConfig<PluginConfig>
         Control.Init(this);
         RegisterListener<Listeners.OnTick>(Control.OnPluginTick);
     }
-
 
     public override void OnAllPluginsLoaded(bool hotReload)
     {
@@ -70,7 +73,5 @@ public class MenuManagerCore : BasePlugin, IPluginConfig<PluginConfig>
             menu.AddMenuOption(Localizer["menumanager.control"], (player, option) => { Misc.SelectPlayerMenu(player, MenuType.ButtonMenu); });
             menu.Open(player);
         }
-
     }
-
 }
