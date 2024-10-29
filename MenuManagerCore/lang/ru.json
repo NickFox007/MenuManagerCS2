@@ -1,10 +1,10 @@
 {
-	"menumanager.footer": "W - вверх S - вниз E - выбор R - выход",	
-	"menumanager.select_type":"Выбор меню",
-	"menumanager.console":"Консольное",	
-	"menumanager.chat":"Чат-меню",
-	"menumanager.center":"Центр (Стандартное)",
-	"menumanager.control":"Центр (Управляемое)",
-	"menumanager.selected_type":"Выбранный тип меню:",
-	"menumanager.back":"Назад",
+	"menumanager.footer": "W - вверх S - вниз E - выбор R - выход",
+	"menumanager.select_type": "Выбор меню",
+	"menumanager.console": "Консольное",
+	"menumanager.chat": "Чат-меню",
+	"menumanager.center": "Центр (Стандартное)",
+	"menumanager.control": "Центр (Управляемое)",
+	"menumanager.selected_type": "Выбранный тип меню:",
+	"menumanager.back": "Назад"
 }
