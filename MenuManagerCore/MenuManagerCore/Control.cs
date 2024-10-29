@@ -1,6 +1,7 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Entities;
+using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Menu;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,7 @@ namespace MenuManager
 
         public static void AddMenu(CCSPlayerController player, ButtonMenu inst)
         {
-            for(int i = 0; i < menus.Count; i++)
+            for (int i = 0; i < menus.Count; i++)
                 if (menus[i].GetPlayer() == player)
                 {
                     menus.Remove(menus[i]);
@@ -33,43 +34,45 @@ namespace MenuManager
             var players = Utilities.GetPlayers();
             foreach (var player in players)
             {
-                if(player != null && player.IsValid && !player.IsBot && !player.IsHLTV && player.Connected == PlayerConnectedState.PlayerConnected)
+                if (player != null && player.IsValid && !player.IsBot && !player.IsHLTV && player.Connected == PlayerConnectedState.PlayerConnected)
                     AddMenu(player, inst);
             }
         }
 
         public static void Clear()
-        {            
+        {
             menus.RemoveAll(x => true);
         }
 
         public static void OnPluginTick()
         {
-            if(menus.Count > 0)
+            if (menus.Count > 0)
             {
-                //foreach(var menu in menus)
-                for(int i = 0; i < menus.Count; i++)
+                for (int i = 0; i < menus.Count; i++)
                 {
                     var menu = menus[i];
-                    if(menu == null)
+                    if (menu == null)
                     {
                         menus.RemoveAt(i);
                         i--;
                         continue;
                     }
                     var player = menu.GetPlayer();
-                    if(!Misc.IsValidPlayer(player))
+                    if (!Misc.IsValidPlayer(player))
                     {
                         menus.RemoveAt(i);
                         i--;
                         continue;
                     }
                     var buttons = player.Buttons;
-                    player.PlayerPawn.Value.VelocityModifier = 0.0f;
-                    // For ButtonMenu
-                    //menu.GetPlayer().PrintToChat("Вот тебе меню .!.");
 
-                    
+                    if (player.Pawn.Value != null)
+                    {
+                        player.Pawn.Value.MoveType = MoveType_t.MOVETYPE_OBSOLETE;
+                        Schema.SetSchemaValue(player.Pawn.Value.Handle, "CBaseEntity", "m_nActualMoveType", 1);
+                        Utilities.SetStateChanged(player.Pawn.Value, "CBaseEntity", "m_MoveType");
+                    }
+
                     if (!menu.IsEqualButtons(buttons.ToString()))
                     {
 
@@ -86,7 +89,12 @@ namespace MenuManager
 
                         if (buttons.HasFlag(PlayerButtons.Reload) || menu.Closed())
                         {
-                            player.PlayerPawn.Value.VelocityModifier = menu.GetMod();
+                            if (player.Pawn.Value != null)
+                            {
+                                player.Pawn.Value.MoveType = MoveType_t.MOVETYPE_WALK;
+                                Schema.SetSchemaValue(player.Pawn.Value.Handle, "CBaseEntity", "m_nActualMoveType", 2);
+                                Utilities.SetStateChanged(player.Pawn.Value, "CBaseEntity", "m_MoveType");
+                            }
                             menus.RemoveAt(i);
                             i--;
                             continue;
@@ -107,9 +115,9 @@ namespace MenuManager
                 {
                     menus[i].Close();
                 }
-            }            
+            }
         }
-        
+
         internal static void Init(BasePlugin _hPlugin)
         {
             hPlugin = _hPlugin;
