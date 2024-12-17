@@ -38,10 +38,9 @@ namespace MenuManager
             return option;            
         }
 
-        private void OnBackAction(CCSPlayerController player, ChatMenuOption option)
+        public void OnBackAction(CCSPlayerController player)
         {
-            if (Control.GetPlugin().Config.SoundBack != "")
-                Control.PlaySound(player, Control.GetPlugin().Config.SoundBack);
+            Control.PlaySound(player, Control.GetPlugin().Config.SoundBack);
             BackAction(player);
         }
 
@@ -58,14 +57,18 @@ namespace MenuManager
                 case MenuType.ChatMenu: menu = new ChatMenu(Title); break;
                 case MenuType.ConsoleMenu: menu = new ConsoleMenu(Title);  break;
                 case MenuType.CenterMenu: menu = new CenterHtmlMenu(Title, Control.GetPlugin()); break;
-                case MenuType.ButtonMenu: menu = new ButtonMenu(Title);  break;
+                case MenuType.ButtonMenu: menu = new ButtonMenu(Misc.ColorText(Title));  break;
             }
 
             menu.ExitButton = ExitButton;
-            menu.PostSelectAction = PostSelectAction;            
+            menu.PostSelectAction = PostSelectAction;
 
             if (BackAction != null)
-                menu.AddMenuOption(Control.GetPlugin().Localizer["menumanager.back"], OnBackAction);
+            {
+                menu.AddMenuOption(Misc.ColorText(Control.GetPlugin().Localizer["menumanager.back"]), (p,d) => OnBackAction(p));
+                if (forcetype == MenuType.ButtonMenu)
+                    ((ButtonMenu)menu).BackAction = OnBackAction;
+            }
 
             foreach(var option in MenuOptions)
                 menu.AddMenuOption(option.Text, option.OnSelect, option.Disabled);

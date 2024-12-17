@@ -17,6 +17,7 @@ namespace MenuManager
     {
         CCSPlayerController player;
         public ButtonMenu menu;
+        //Action<CCSPlayerController> backaction;
 
         private int offset;
         private int selected;
@@ -24,15 +25,27 @@ namespace MenuManager
         private string prev_buttons;
         private bool closed;
 
-        public PlayerInfo(CCSPlayerController _player, ButtonMenu _menu)
+        public PlayerInfo(CCSPlayerController _player, ButtonMenu _menu, float new_mod = 0.0f, int new_selected = 0, string old_title = "")
         {
             player = _player;
             menu = _menu;
-            prev_mod = player.PlayerPawn.Value.VelocityModifier;
+            
+            if(new_mod == 0.0f)
+                prev_mod = player.PlayerPawn.Value.VelocityModifier;
+            else
+                prev_mod = new_mod;
 
             closed = false;
             offset = 0;
-            selected = 0;  
+            if (_menu.Title == old_title)
+            {
+                if (_menu.MenuOptions.Count > new_selected)
+                    selected = new_selected;
+                else
+                    selected = Math.Max(_menu.MenuOptions.Count - 1, 0);
+            }
+            else
+                selected = 0;
             prev_buttons = player.Buttons.ToString();
         }
 
@@ -60,16 +73,14 @@ namespace MenuManager
                     text = text + "<br>" + line;
                 }
             else
-                text = $"{text}<br><font color='#aaaaaa'>{Control.GetPlugin().Localizer["menumanager.empty"]}</font>";
-            //text = text + "<br>" + "W - вверх D - вниз<br>E - выбор R - выход";
+                text = $"{text}<br><font color='#aaaaaa'>{Misc.ColorText(Control.GetPlugin().Localizer["menumanager.empty"])}</font>";
 
-            return text + $"</font><br><font class='fontSize-s'>{Control.GetPlugin().Localizer["menumanager.footer"]}</font>";
+            return text + $"</font><br><font class='fontSize-s'>{Misc.ColorText(Control.GetPlugin().Localizer["menumanager.footer"])}</font>";
         }
 
         public bool MoveDown(int lines = 1)
         {
-            if (Control.GetPlugin().Config.SoundScroll != "")
-                Control.PlaySound(player, Control.GetPlugin().Config.SoundScroll);
+            Control.PlaySound(player, Control.GetPlugin().Config.SoundScroll);
 
             if (selected == menu.MenuOptions.Count - 1) return false;
 
@@ -84,8 +95,7 @@ namespace MenuManager
 
         public bool MoveUp(int lines = 1)
         {
-            if (Control.GetPlugin().Config.SoundScroll != "")
-                Control.PlaySound(player, Control.GetPlugin().Config.SoundScroll);
+            Control.PlaySound(player, Control.GetPlugin().Config.SoundScroll);
             if (selected < 1)
             {
                 selected = 0;
@@ -116,20 +126,18 @@ namespace MenuManager
             {
                 if (menu.MenuOptions[selected].Disabled)
                 {
-                    if (Control.GetPlugin().Config.SoundDisabled != "")
-                        Control.PlaySound(player, Control.GetPlugin().Config.SoundDisabled);
+                    Control.PlaySound(player, Control.GetPlugin().Config.SoundDisabled);
                 }
                 else
-                {
-                    if (Control.GetPlugin().Config.SoundClick != "")
-                        Control.PlaySound(player, Control.GetPlugin().Config.SoundClick);
+                {                    
+                    Control.PlaySound(player, Control.GetPlugin().Config.SoundClick);
                     try
                     {
                         menu.MenuOptions[selected].OnSelect(player, menu.MenuOptions[selected]);
                     }
                     catch (Exception e)
                     {
-                        Control.GetPlugin().Logger.LogInformation($"Error was caused in calling plugin [{e.Message}]\n{e.StackTrace}");
+                        Control.GetPlugin().Logger.LogInformation($"Error was caused in calling plugin: {e.Message}\n{e.StackTrace}");
                     }
                     if (menu.PostSelectAction == PostSelectAction.Close)
                         Close();
@@ -142,7 +150,7 @@ namespace MenuManager
         {
             if (!closed)
             {
-                if (Control.GetPlugin().Config.SoundExit != "" && withsound)
+                if (withsound)
                     Control.PlaySound(player, Control.GetPlugin().Config.SoundExit);
                 closed = true;
             }

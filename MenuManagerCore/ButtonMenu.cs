@@ -10,7 +10,9 @@ using System.Threading.Tasks;
 namespace MenuManager
 {
     public class ButtonMenu : IMenu
-    {        
+    {
+        public Action<CCSPlayerController> BackAction = null;
+
         public ButtonMenu(string _title)
         {
             MenuOptions = new List<ChatMenuOption>();

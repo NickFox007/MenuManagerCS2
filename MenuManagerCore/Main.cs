@@ -18,12 +18,15 @@ public class PluginConfig : BasePluginConfig
     [JsonPropertyName("SoundDisabled")] public string SoundDisabled { get; set; } = "";
     [JsonPropertyName("SoundBack")] public string SoundBack { get; set; } = "";
     [JsonPropertyName("SoundExit")] public string SoundExit { get; set; } = "";
+    [JsonPropertyName("MoveWhileOpenMenu")] public bool MoveWhileOpenMenu { get; set; } = false;
+    [JsonPropertyName("ButtonsConfig")] public ButtonsConfig ButtonsConfig { get; set; } = new ButtonsConfig();
+
 }
 
 public class MenuManagerCore : BasePlugin, IPluginConfig<PluginConfig>
 {
     public override string ModuleName => "MenuManager [Core]";
-    public override string ModuleVersion => "0.9";
+    public override string ModuleVersion => "1.0";
     public override string ModuleAuthor => "Nick Fox";
     public override string ModuleDescription => "All menus interacts in one core";
 
@@ -65,12 +68,12 @@ public class MenuManagerCore : BasePlugin, IPluginConfig<PluginConfig>
     {
         if (player != null)
         {
-            var menu = _api.NewMenu(Localizer["menumanager.select_type"]);
+            var menu = _api.NewMenu(Misc.ColorText(Localizer["menumanager.select_type"]));
             menu.PostSelectAction = PostSelectAction.Close;
-            menu.AddMenuOption(Localizer["menumanager.console"], (player, option) => { Misc.SelectPlayerMenu(player, MenuType.ConsoleMenu); });
-            menu.AddMenuOption(Localizer["menumanager.chat"], (player, option) => { Misc.SelectPlayerMenu(player, MenuType.ChatMenu); });
-            menu.AddMenuOption(Localizer["menumanager.center"], (player, option) => { Misc.SelectPlayerMenu(player, MenuType.CenterMenu); });
-            menu.AddMenuOption(Localizer["menumanager.control"], (player, option) => { Misc.SelectPlayerMenu(player, MenuType.ButtonMenu); });
+            menu.AddMenuOption(Misc.ColorText(Localizer["menumanager.console"]), (player, option) => { Misc.SelectPlayerMenu(player, MenuType.ConsoleMenu); });
+            menu.AddMenuOption(Misc.ColorText(Localizer["menumanager.chat"]), (player, option) => { Misc.SelectPlayerMenu(player, MenuType.ChatMenu); });
+            menu.AddMenuOption(Misc.ColorText(Localizer["menumanager.center"]), (player, option) => { Misc.SelectPlayerMenu(player, MenuType.CenterMenu); });
+            menu.AddMenuOption(Misc.ColorText(Localizer["menumanager.control"]), (player, option) => { Misc.SelectPlayerMenu(player, MenuType.ButtonMenu); });
             menu.Open(player);
         }
     }

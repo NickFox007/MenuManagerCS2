@@ -17,14 +17,20 @@ namespace MenuManager
 
         public static void AddMenu(CCSPlayerController player, ButtonMenu inst)
         {
+            float old_mod = 0.0f;
+            int old_selected = 0;
+            string old_title = "";
             for(int i = 0; i < menus.Count; i++)
                 if (menus[i].GetPlayer() == player)
                 {
+                    old_mod = menus[i].GetMod();
+                    old_selected = menus[i].Selected();
+                    old_title = menus[i].menu.Title;
                     menus.Remove(menus[i]);
                     i++;
                 }
 
-            var menu = new PlayerInfo(player, inst);
+            var menu = new PlayerInfo(player, inst, old_mod, old_selected, old_title);
             menus.Add(menu);
         }
 
@@ -65,7 +71,8 @@ namespace MenuManager
                         continue;
                     }
                     var buttons = player.Buttons;
-                    player.PlayerPawn.Value.VelocityModifier = 0.0f;
+                    if(!hPlugin.Config.MoveWhileOpenMenu)
+                        player.PlayerPawn.Value.VelocityModifier = 0.0f;
                     // For ButtonMenu
                     //menu.GetPlayer().PrintToChat("Вот тебе меню .!.");
 
@@ -73,21 +80,24 @@ namespace MenuManager
                     if (!menu.IsEqualButtons(buttons.ToString()))
                     {
 
-                        if (buttons.HasFlag(PlayerButtons.Forward))
+                        if (buttons.HasFlag(hPlugin.Config.ButtonsConfig.UpButton))
                             menu.MoveUp();
-                        else if (buttons.HasFlag(PlayerButtons.Back))
+                        else if (buttons.HasFlag(hPlugin.Config.ButtonsConfig.DownButton))
                             menu.MoveDown();
-                        else if (buttons.HasFlag(PlayerButtons.Moveleft))
+                        else if (buttons.HasFlag(hPlugin.Config.ButtonsConfig.LeftButton))
                             menu.MoveUp(7);
-                        else if (buttons.HasFlag(PlayerButtons.Moveright))
+                        else if (buttons.HasFlag(hPlugin.Config.ButtonsConfig.RightButton))
                             menu.MoveDown(7);
-                        else if (buttons.HasFlag(PlayerButtons.Use))
+                        else if (buttons.HasFlag(hPlugin.Config.ButtonsConfig.SelectButton))
                             menu.OnSelect();
+                        else if (buttons.HasFlag(hPlugin.Config.ButtonsConfig.BackButton) && menu.menu.BackAction != null)
+                            menu.menu.BackAction(player);
 
-                        if (buttons.HasFlag(PlayerButtons.Reload) || menu.Closed())
-                        {
+                        if (buttons.HasFlag(hPlugin.Config.ButtonsConfig.ExitButton) || menu.Closed())
+                        {                            
                             menu.Close(true);
-                            player.PlayerPawn.Value.VelocityModifier = menu.GetMod();
+                            if (!hPlugin.Config.MoveWhileOpenMenu)
+                                player.PlayerPawn.Value.VelocityModifier = menu.GetMod();
                             menus.RemoveAt(i);
                             i--;
                             continue;
@@ -101,7 +111,8 @@ namespace MenuManager
 
         public static void PlaySound(CCSPlayerController player, string sound)
         {
-            player.ExecuteClientCommand("play " + sound);
+            if(sound != "")
+                player.ExecuteClientCommand("play " + sound);
         }
 
         public static void CloseMenu(CCSPlayerController player)
