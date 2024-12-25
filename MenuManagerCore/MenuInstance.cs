@@ -1,5 +1,6 @@
 ﻿using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Menu;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,16 +12,18 @@ namespace MenuManager
     public class MenuInstance : IMenu
     {
         Action<CCSPlayerController> BackAction;
+        Action<CCSPlayerController> ResetAction;
 
         MenuType forcetype;
 
-        public MenuInstance(string _title, Action<CCSPlayerController> _back_action = null, MenuType _forcetype = MenuType.Default)
+        public MenuInstance(string _title, Action<CCSPlayerController> _back_action = null, Action<CCSPlayerController> _reset_action = null, MenuType _forcetype = MenuType.Default)
         {
             Title = _title;
             ExitButton = true;
             MenuOptions = new List<ChatMenuOption>();
             BackAction = _back_action;
             forcetype = _forcetype;
+            ResetAction = _reset_action;
         }
 
         public string Title {get;set;}
@@ -33,15 +36,26 @@ namespace MenuManager
 
         public ChatMenuOption AddMenuOption(string display, Action<CCSPlayerController, ChatMenuOption> onSelect, bool disabled = false)
         {
-            var option = new ChatMenuOption(display, disabled, (player, opt) => { onSelect(player, opt); });
+            var option = new ChatMenuOption(display, disabled, (p, opt) => onSelect(p, opt));
             MenuOptions.Add(option);
             return option;            
         }
 
         public void OnBackAction(CCSPlayerController player)
         {
-            Control.PlaySound(player, Control.GetPlugin().Config.SoundBack);
-            BackAction(player);
+            if (BackAction != null)
+            {
+                Control.PlaySound(player, Control.GetPlugin().Config.SoundBack);
+                BackAction(player);
+            }
+        }
+
+        public void OnResetAction(CCSPlayerController player)
+        {
+            if (ResetAction != null)
+                ResetAction(player);
+            else
+                Control.GetPlugin().Logger.LogWarning($"Reset action is not passed to func! TITLE: {Title}");
         }
 
         public void Open(CCSPlayerController player)
@@ -65,12 +79,19 @@ namespace MenuManager
 
             if (BackAction != null)
             {
-                menu.AddMenuOption(Misc.ColorText(Control.GetPlugin().Localizer["menumanager.back"]), (p,d) => OnBackAction(p));
-                if (forcetype == MenuType.ButtonMenu)
-                    ((ButtonMenu)menu).BackAction = OnBackAction;
+                menu.AddMenuOption(Misc.ColorText(Control.GetPlugin().Localizer["menumanager.back"]), (p,d) => OnBackAction(p));                
+
             }
 
-            foreach(var option in MenuOptions)
+            if (forcetype == MenuType.ButtonMenu)
+            {
+                ((ButtonMenu)menu).BackAction = OnBackAction;
+                ((ButtonMenu)menu).ResetAction = OnResetAction;
+            }
+
+
+
+            foreach (var option in MenuOptions)
                 menu.AddMenuOption(option.Text, option.OnSelect, option.Disabled);
             
             menu.Open(player);

@@ -20,13 +20,14 @@ public class PluginConfig : BasePluginConfig
     [JsonPropertyName("SoundExit")] public string SoundExit { get; set; } = "";
     [JsonPropertyName("MoveWhileOpenMenu")] public bool MoveWhileOpenMenu { get; set; } = false;
     [JsonPropertyName("ButtonsConfig")] public ButtonsConfig ButtonsConfig { get; set; } = new ButtonsConfig();
+    [JsonPropertyName("IgnoreErrors")] public bool IgnoreErrors { get; set; } = true;
 
 }
 
 public class MenuManagerCore : BasePlugin, IPluginConfig<PluginConfig>
 {
     public override string ModuleName => "MenuManager [Core]";
-    public override string ModuleVersion => "1.0";
+    public override string ModuleVersion => "1.1";
     public override string ModuleAuthor => "Nick Fox";
     public override string ModuleDescription => "All menus interacts in one core";
 

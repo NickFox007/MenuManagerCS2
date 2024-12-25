@@ -4,6 +4,7 @@ using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Menu;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,17 +21,19 @@ namespace MenuManager
             float old_mod = 0.0f;
             int old_selected = 0;
             string old_title = "";
+            int old_offset = 0;
             for(int i = 0; i < menus.Count; i++)
                 if (menus[i].GetPlayer() == player)
                 {
                     old_mod = menus[i].GetMod();
                     old_selected = menus[i].Selected();
                     old_title = menus[i].menu.Title;
+                    old_offset = menus[i].Offset();
                     menus.Remove(menus[i]);
                     i++;
                 }
 
-            var menu = new PlayerInfo(player, inst, old_mod, old_selected, old_title);
+            var menu = new PlayerInfo(player, inst, old_mod, old_selected, old_offset, old_title);            
             menus.Add(menu);
         }
 
@@ -70,12 +73,11 @@ namespace MenuManager
                         i--;
                         continue;
                     }
-                    var buttons = player.Buttons;
+                    PlayerButtons buttons = 0;
+
+                    buttons = player.Buttons;
                     if(!hPlugin.Config.MoveWhileOpenMenu)
                         player.PlayerPawn.Value.VelocityModifier = 0.0f;
-                    // For ButtonMenu
-                    //menu.GetPlayer().PrintToChat("Вот тебе меню .!.");
-
                     
                     if (!menu.IsEqualButtons(buttons.ToString()))
                     {
@@ -126,7 +128,17 @@ namespace MenuManager
                 }
             }            
         }
-        
+     
+        internal static bool HasOpenedMenu(CCSPlayerController player, PlayerInfo info = null)
+        {            
+            foreach (var menu in menus)
+                if (menu.GetPlayer() == player && !menu.Closed() && menu != info)
+                {                    
+                    return true;
+                }            
+            return false;
+        }
+
         internal static void Init(MenuManagerCore _hPlugin)
         {
             hPlugin = _hPlugin;

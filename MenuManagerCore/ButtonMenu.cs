@@ -12,6 +12,7 @@ namespace MenuManager
     public class ButtonMenu : IMenu
     {
         public Action<CCSPlayerController> BackAction = null;
+        public Action<CCSPlayerController> ResetAction = null;
 
         public ButtonMenu(string _title)
         {

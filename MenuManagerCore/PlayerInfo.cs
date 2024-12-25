@@ -25,7 +25,7 @@ namespace MenuManager
         private string prev_buttons;
         private bool closed;
 
-        public PlayerInfo(CCSPlayerController _player, ButtonMenu _menu, float new_mod = 0.0f, int new_selected = 0, string old_title = "")
+        public PlayerInfo(CCSPlayerController _player, ButtonMenu _menu, float new_mod = 0.0f, int new_selected = 0, int new_offset = 0, string old_title = "")
         {
             player = _player;
             menu = _menu;
@@ -43,10 +43,16 @@ namespace MenuManager
                     selected = new_selected;
                 else
                     selected = Math.Max(_menu.MenuOptions.Count - 1, 0);
+                offset = new_offset;
             }
             else
                 selected = 0;
             prev_buttons = player.Buttons.ToString();
+        }
+
+        public int Offset()
+        {
+            return offset;
         }
 
         public CCSPlayerController GetPlayer()
@@ -129,18 +135,30 @@ namespace MenuManager
                     Control.PlaySound(player, Control.GetPlugin().Config.SoundDisabled);
                 }
                 else
-                {                    
+                {
                     Control.PlaySound(player, Control.GetPlugin().Config.SoundClick);
-                    try
+
+                    if (Control.GetPlugin().Config.IgnoreErrors)
                     {
+
+                        try
+                        {
+                            menu.MenuOptions[selected].OnSelect(player, menu.MenuOptions[selected]);
+                        }
+                        catch (Exception e)
+                        {
+                            Control.GetPlugin().Logger.LogInformation($"Error was caused in calling plugin: {e.Message}\n=============== STACKTRACE ===============\n{e.StackTrace}\n==========================================");
+                        }
+                    }
+                    else
                         menu.MenuOptions[selected].OnSelect(player, menu.MenuOptions[selected]);
-                    }
-                    catch (Exception e)
+
+                    switch (menu.PostSelectAction)
                     {
-                        Control.GetPlugin().Logger.LogInformation($"Error was caused in calling plugin: {e.Message}\n{e.StackTrace}");
+                        case PostSelectAction.Close: Close(); break;
+                        //case PostSelectAction.Reset: Close(false); Control.GetPlugin().AddTimer(0.2f, () => { if (menu.ResetAction != null && !Control.HasOpenedMenu(player, this)) menu.ResetAction(player); }); break;
+                        case PostSelectAction.Reset: if (menu.ResetAction != null && !Control.HasOpenedMenu(player, this)) menu.ResetAction(player); break;
                     }
-                    if (menu.PostSelectAction == PostSelectAction.Close)
-                        Close();
                 }
 
             }
