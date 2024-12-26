@@ -18,7 +18,7 @@ namespace MenuManager
             plugin = _plugin;
         }
 
-        public IMenu NewMenu(string title, Action<CCSPlayerController> back_action = null, Action<CCSPlayerController> reset_action = null)
+        public IMenu GetMenu(string title, Action<CCSPlayerController> back_action = null, Action<CCSPlayerController> reset_action = null)
         {
             return new MenuInstance(title, back_action, reset_action);
         }
@@ -28,7 +28,7 @@ namespace MenuManager
             return new MenuInstance(title, back_action, null);
         }
 
-        public IMenu NewMenuForcetype(string title, MenuType type, Action<CCSPlayerController> back_action = null, Action<CCSPlayerController> reset_action = null)
+        public IMenu GetMenuForcetype(string title, MenuType type, Action<CCSPlayerController> back_action = null, Action<CCSPlayerController> reset_action = null)
         {
             return new MenuInstance(title, back_action, reset_action, type);
         }

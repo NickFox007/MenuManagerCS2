@@ -9,7 +9,7 @@ using MenuManager;
 public class MenuManagerTest : BasePlugin
 {
     public override string ModuleName => "MenuManager [Test]";
-    public override string ModuleVersion => "0.3";
+    public override string ModuleVersion => "1.1.2";
     public override string ModuleAuthor => "Nick Fox";
     public override string ModuleDescription => "MenuManager Test Module";
 
@@ -27,7 +27,7 @@ public class MenuManagerTest : BasePlugin
     {
         if (player != null)
         {            
-            var menu = _api.NewMenu("Ticklingig", null);
+            var menu = _api.GetMenu("Ticklingig");
             for (int i = 0; i < 10; i++)
                 menu.AddMenuOption($"itemline{i}", (player, option) => { player.PrintToChat($"Selected: {option.Text}"); });
             menu.Open(player);
