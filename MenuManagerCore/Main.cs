@@ -27,7 +27,7 @@ public class PluginConfig : BasePluginConfig
 public class MenuManagerCore : BasePlugin, IPluginConfig<PluginConfig>
 {
     public override string ModuleName => "MenuManager [Core]";
-    public override string ModuleVersion => "1.1";
+    public override string ModuleVersion => "1.1.1";
     public override string ModuleAuthor => "Nick Fox";
     public override string ModuleDescription => "All menus interacts in one core";
 
@@ -69,7 +69,7 @@ public class MenuManagerCore : BasePlugin, IPluginConfig<PluginConfig>
     {
         if (player != null)
         {
-            var menu = _api.NewMenu(Misc.ColorText(Localizer["menumanager.select_type"]));
+            var menu = _api.NewMenu(Misc.ColorText(Localizer["menumanager.select_type"]), null);
             menu.PostSelectAction = PostSelectAction.Close;
             menu.AddMenuOption(Misc.ColorText(Localizer["menumanager.console"]), (player, option) => { Misc.SelectPlayerMenu(player, MenuType.ConsoleMenu); });
             menu.AddMenuOption(Misc.ColorText(Localizer["menumanager.chat"]), (player, option) => { Misc.SelectPlayerMenu(player, MenuType.ChatMenu); });

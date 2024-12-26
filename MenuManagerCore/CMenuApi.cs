@@ -23,9 +23,19 @@ namespace MenuManager
             return new MenuInstance(title, back_action, reset_action);
         }
 
+        public IMenu NewMenu(string title, Action<CCSPlayerController> back_action = null)
+        {
+            return new MenuInstance(title, back_action, null);
+        }
+
         public IMenu NewMenuForcetype(string title, MenuType type, Action<CCSPlayerController> back_action = null, Action<CCSPlayerController> reset_action = null)
         {
             return new MenuInstance(title, back_action, reset_action, type);
+        }
+
+        public IMenu NewMenuForcetype(string title, MenuType type, Action<CCSPlayerController> back_action = null)
+        {
+            return new MenuInstance(title, back_action, null, type);
         }
 
         public void CloseMenu(CCSPlayerController player)

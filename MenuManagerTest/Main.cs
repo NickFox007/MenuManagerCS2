@@ -27,7 +27,7 @@ public class MenuManagerTest : BasePlugin
     {
         if (player != null)
         {            
-            var menu = _api.NewMenu("Ticklingig");
+            var menu = _api.NewMenu("Ticklingig", null);
             for (int i = 0; i < 10; i++)
                 menu.AddMenuOption($"itemline{i}", (player, option) => { player.PrintToChat($"Selected: {option.Text}"); });
             menu.Open(player);
