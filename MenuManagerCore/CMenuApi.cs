@@ -47,6 +47,12 @@ namespace MenuManager
         {
             return Misc.GetCurrentPlayerMenu(player);
         }
-       
+
+        public bool HasOpenedMenu(CCSPlayerController player)
+        {
+            return Control.HasOpenedMenu(player);
+        }
+
+
     }
 }

@@ -26,6 +26,7 @@ namespace MenuManager
 
         public void CloseMenu(CCSPlayerController player);
         public MenuType GetMenuType(CCSPlayerController player);
+        public bool HasOpenedMenu(CCSPlayerController player);
     }
 
     public enum MenuType
