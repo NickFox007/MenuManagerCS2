@@ -106,7 +106,7 @@ namespace MenuManager
                         }
                     }
 
-                    menu.GetPlayer().PrintToCenterHtml(menu.GetText());
+                    menu.GetPlayer().PrintToCenterHtml(menu.GetText(), 1);
                 }
             }
         }
