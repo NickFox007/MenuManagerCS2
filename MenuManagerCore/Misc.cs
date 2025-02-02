@@ -59,10 +59,10 @@ namespace MenuManager
         {
             switch(type)
             {
-                case MenuType.ChatMenu: return Misc.ColorText(Control.GetPlugin().Localizer["menumanager.chat"]);
-                case MenuType.ConsoleMenu: return Misc.ColorText(Control.GetPlugin().Localizer["menumanager.console"]);
-                case MenuType.CenterMenu: return Misc.ColorText(Control.GetPlugin().Localizer["menumanager.center"]);
-                case MenuType.ButtonMenu: return Misc.ColorText(Control.GetPlugin().Localizer["menumanager.control"]);
+                case MenuType.ChatMenu: return Control.GetPlugin().Localizer["menumanager.chat"];
+                case MenuType.ConsoleMenu: return Control.GetPlugin().Localizer["menumanager.console"];
+                case MenuType.CenterMenu: return Control.GetPlugin().Localizer["menumanager.center"];
+                case MenuType.ButtonMenu: return Control.GetPlugin().Localizer["menumanager.control"];
                 default: return "Undefined";
             }
         }
@@ -73,23 +73,32 @@ namespace MenuManager
             else return false;
         }
 
-        internal static string ColorText(string text)
+        internal static string ColorText(string text, bool need_colors = true)
         {
             var new_text = text;
 
             var colors = new List<string>(["Default", "White", "Darkred", "Green", "Lightyellow", "Lightblue", "Olive", "Lime", "Red", "Lightpurple", "Purple", "Grey", "Yellow", "Gold", "Silver", "Blue", "Darkblue", "Bluegrey", "Magenta", "Lightred", "Orange"]);
 
-            foreach (var color in colors)
-            {
-                var lower = color.ToLower();
-                var rep = $"<font color='{lower}'>";
-                new_text = new_text.Replace(color, rep);
-                new_text = new_text.Replace(color.ToUpper(), rep);
-                new_text = new_text.Replace(lower, rep);
-            }
-
+            if(need_colors)
+                foreach (var color0 in colors)
+                {
+                    var color = "[color:" + color0 + "]";
+                    var color_old = "{" + color0 + "}";
+                    var rep = $"<font color='{color0.ToLower()}'>";
+                    new_text = new_text.Replace(color, rep, StringComparison.CurrentCultureIgnoreCase);
+                    new_text = new_text.Replace(color_old, rep, StringComparison.CurrentCultureIgnoreCase); // For some backward compatibility..?                    
+                }
+            else
+                foreach (var color0 in colors)
+                {
+                    var color = "[color:" + color0 + "]";
+                    var color_old = "{" + color0 + "}";
+                    new_text = new_text.Replace(color, "", StringComparison.CurrentCultureIgnoreCase);
+                    new_text = new_text.Replace(color_old, "", StringComparison.CurrentCultureIgnoreCase);                    
+                }
             return new_text;
         }
+                
     }
 
     

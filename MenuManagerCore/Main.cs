@@ -7,6 +7,7 @@ using CounterStrikeSharp.API.Modules.Menu;
 using Microsoft.Extensions.Logging;
 using PlayerSettings;
 using System.Text.Json.Serialization;
+using static CounterStrikeSharp.API.Core.Listeners;
 
 
 namespace MenuManager;
@@ -21,22 +22,25 @@ public class PluginConfig : BasePluginConfig
     [JsonPropertyName("MoveWhileOpenMenu")] public bool MoveWhileOpenMenu { get; set; } = false;
     [JsonPropertyName("ButtonsConfig")] public ButtonsConfig ButtonsConfig { get; set; } = new ButtonsConfig();
     [JsonPropertyName("IgnoreErrors")] public bool IgnoreErrors { get; set; } = true;
+    [JsonPropertyName("MenuLinesCount")] public int MenuLinesCount { get; set; } = 7;
 
 }
 
 public class MenuManagerCore : BasePlugin, IPluginConfig<PluginConfig>
 {
     public override string ModuleName => "MenuManager [Core]";
-    public override string ModuleVersion => "1.2.1";
+    public override string ModuleVersion => "1.3";
     public override string ModuleAuthor => "Nick Fox";
     public override string ModuleDescription => "All menus interacts in one core";
-
     public PluginConfig Config { get; set; }
-
     public void OnConfigParsed(PluginConfig config)
     {
         Config = config;
-
+        if (Config.MenuLinesCount < 3)
+        {
+            Config.MenuLinesCount = 6;
+            Logger.LogWarning("MenuLinesCount is incorrect. Setting it to default (= 6)");
+        }
         Misc.SetDefaultMenu(Config.DefaultMenu);
     }
 
@@ -51,6 +55,13 @@ public class MenuManagerCore : BasePlugin, IPluginConfig<PluginConfig>
 
         Control.Init(this);
         RegisterListener<Listeners.OnTick>(Control.OnPluginTick);
+        RegisterListener<Listeners.OnMapStart>(OnMapStart);
+        if(hotReload) MenusMM.Init();
+    }
+
+    public void OnMapStart(string map)
+    {
+        MenusMM.Init();
     }
 
     public override void OnAllPluginsLoaded(bool hotReload)
@@ -58,7 +69,7 @@ public class MenuManagerCore : BasePlugin, IPluginConfig<PluginConfig>
         _settings = _settingsCapability.Get();
         if (_settings == null)
             Console.WriteLine("PlayerSettings core not found...");
-        Misc.SetSettingApi(_settings);
+        Misc.SetSettingApi(_settings);        
     }
 
     public override void Unload(bool hotReload){

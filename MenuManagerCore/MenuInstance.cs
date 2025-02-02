@@ -60,7 +60,6 @@ namespace MenuManager
 
         public void Open(CCSPlayerController player)
         {
-
             IMenu menu = null;
 
             if (forcetype == MenuType.Default)
@@ -95,7 +94,7 @@ namespace MenuManager
                 menu.AddMenuOption(option.Text, option.OnSelect, option.Disabled);
             
             menu.Open(player);
-
+            MenusMM.ClosePlayerMenu(player.Slot);
         }
 
         public void OpenToAll()

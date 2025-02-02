@@ -70,18 +70,23 @@ namespace MenuManager
             string text = $"<font class='mono-spaced-font'>{menu.Title}</font><font class='fontSize-sm stratum-font'>";
             
             if(menu.MenuOptions.Count > 0)            
-                for (int i = offset; i < Math.Min(offset + 7, menu.MenuOptions.Count); i++)
+                for (int i = offset; i < Math.Min(offset + Control.GetPlugin().Config.MenuLinesCount, menu.MenuOptions.Count); i++)
                 {
                     var line = menu.MenuOptions[i].Text;
-                    if (menu.MenuOptions[i].Disabled) line = $"<font color='#aaaaaa'>{line}</font>";
-                    if (i == selected) line = $"► {line} ◄";
+                    if (menu.MenuOptions[i].Disabled) line = $"<font color='#aaaaaa'>{Misc.ColorText(line, false)}</font>";
+                    if (i == selected) line = Control.GetPlugin().Localizer["menumanager.selected_item"].Value.Replace("[MENUITEM]", line);
+
 
                     text = text + "<br>" + line;
                 }
             else
-                text = $"{text}<br><font color='#aaaaaa'>{Misc.ColorText(Control.GetPlugin().Localizer["menumanager.empty"])}</font>";
+                text = $"{text}<br><font color='#aaaaaa'>{Control.GetPlugin().Localizer["menumanager.empty"]}</font>";
 
-            return text + $"</font><br><font class='fontSize-s'>{Misc.ColorText(Control.GetPlugin().Localizer["menumanager.footer"])}</font>";
+            text = Misc.ColorText(text + $"</font><br><font class='fontSize-s'>{Control.GetPlugin().Localizer["menumanager.footer"]}</font>");
+
+            //Console.WriteLine(text);
+
+            return text;
         }
 
         public bool MoveDown(int lines = 1)
@@ -92,7 +97,7 @@ namespace MenuManager
 
             selected = Math.Min(selected + lines, menu.MenuOptions.Count-1);
             
-            if (selected - offset > 6) offset = selected - 6;
+            if (selected - offset > Control.GetPlugin().Config.MenuLinesCount - 1) offset = selected - Control.GetPlugin().Config.MenuLinesCount + 1;
 
             
 
