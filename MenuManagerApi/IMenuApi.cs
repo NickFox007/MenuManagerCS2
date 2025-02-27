@@ -35,6 +35,7 @@ namespace MenuManager
         ChatMenu = 0,
         ConsoleMenu = 1,
         CenterMenu = 2,
-        ButtonMenu = 3
+        ButtonMenu = 3,
+        MetamodMenu = 4
     }
 }

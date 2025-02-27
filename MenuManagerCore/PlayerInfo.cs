@@ -84,8 +84,6 @@ namespace MenuManager
 
             text = Misc.ColorText(text + $"</font><br><font class='fontSize-s'>{Control.GetPlugin().Localizer["menumanager.footer"]}</font>");
 
-            //Console.WriteLine(text);
-
             return text;
         }
 

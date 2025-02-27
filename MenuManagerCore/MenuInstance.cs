@@ -11,8 +11,8 @@ namespace MenuManager
 {
     public class MenuInstance : IMenu
     {
-        Action<CCSPlayerController> BackAction;
-        Action<CCSPlayerController> ResetAction;
+        public Action<CCSPlayerController> BackAction;
+        public Action<CCSPlayerController> ResetAction;
 
         MenuType forcetype;
 
@@ -65,12 +65,16 @@ namespace MenuManager
             if (forcetype == MenuType.Default)
                 forcetype = Misc.GetCurrentPlayerMenu(player);
 
+            if (forcetype == MenuType.MetamodMenu && !MenusMM.Hooked())
+                forcetype = MenuType.ButtonMenu;
+
             switch (forcetype)
             {
                 case MenuType.ChatMenu: menu = new ChatMenu(Title); break;
                 case MenuType.ConsoleMenu: menu = new ConsoleMenu(Title);  break;
                 case MenuType.CenterMenu: menu = new CenterHtmlMenu(Title, Control.GetPlugin()); break;
-                case MenuType.ButtonMenu: menu = new ButtonMenu(Misc.ColorText(Title));  break;
+                case MenuType.ButtonMenu: menu = new ButtonMenu(Title, false);  break;
+                case MenuType.MetamodMenu: menu = new ButtonMenu(Title, true);  break;
             }
 
             menu.ExitButton = ExitButton;
@@ -78,7 +82,7 @@ namespace MenuManager
 
             if (BackAction != null)
             {
-                menu.AddMenuOption(Misc.ColorText(Control.GetPlugin().Localizer["menumanager.back"]), (p,d) => OnBackAction(p));                
+                menu.AddMenuOption(Control.GetPlugin().Localizer["menumanager.back"], (p,d) => OnBackAction(p));                
 
             }
 
@@ -87,14 +91,25 @@ namespace MenuManager
                 ((ButtonMenu)menu).BackAction = OnBackAction;
                 ((ButtonMenu)menu).ResetAction = OnResetAction;
             }
+            else
+            {
+                var flag = forcetype == MenuType.CenterMenu;
+                menu.Title = Misc.ColorText(menu.Title, flag);
+                for (int i = 0; i < MenuOptions.Count; i++)
+                    MenuOptions[i].Text = Misc.ColorText(MenuOptions[i].Text, flag);
+            }
 
 
-
-            foreach (var option in MenuOptions)
-                menu.AddMenuOption(option.Text, option.OnSelect, option.Disabled);
+                foreach (var option in MenuOptions)
+                    menu.AddMenuOption(option.Text, option.OnSelect, option.Disabled);
             
-            menu.Open(player);
-            MenusMM.ClosePlayerMenu(player.Slot);
+            if (Control.GetPlugin().Config.UseMetamodMenu && ((Control.GetPlugin().Config.UseMetamodMenuReplace && forcetype == MenuType.ButtonMenu) || (forcetype == MenuType.MetamodMenu)))
+                MenusMM.PassMenuToMM(player, this);
+            else
+            {                
+                MenusMM.ClosePlayerMenu(player.Slot);
+                menu.Open(player);                
+            }
         }
 
         public void OpenToAll()

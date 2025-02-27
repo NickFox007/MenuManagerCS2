@@ -54,9 +54,9 @@ internal static class Control
 
     public static void OnPluginTick()
     {
+
         if(menus.Count > 0)
         {
-            //foreach(var menu in menus)
             for(int i = 0; i < menus.Count; i++)
             {
                 var menu = menus[i];
@@ -131,13 +131,15 @@ internal static class Control
     }
  
     internal static bool HasOpenedMenu(CCSPlayerController player, PlayerInfo info = null)
-    {            
+    {     
+        
         foreach (var menu in menus)
             if (menu.GetPlayer() == player && !menu.Closed() && menu != info)
             {                    
                 return true;
             }            
-        return info == null && MenusMM.IsMenuOpen(player.Slot);
+        
+        return info == null && MenusMM.IsMenuOpen(player.Slot);        
     }
 
     internal static void Init(MenuManagerCore _hPlugin)

@@ -33,26 +33,35 @@ namespace MenuManager
 
         public static void SetDefaultMenu(string DefaultMenu)
         {
-            var menu_types = new List<string>(["ButtonMenu", "CenterMenu", "ConsoleMenu", "ChatMenu"]);
+            var menu_types = new List<string>(["ButtonMenu", "CenterMenu", "ConsoleMenu", "ChatMenu", "MetamodMenu"]);
             if (menu_types.Contains(DefaultMenu))
                 Misc.DefaultMenu = DefaultMenu;
             else
             {
                 Control.GetPlugin().Logger.LogInformation($"Invalid menu type: {DefaultMenu}. Using default menu {Misc.DefaultMenu}");
-            }
+            }            
         }
 
         public static MenuType GetCurrentPlayerMenu(CCSPlayerController player)
         {         
             var res = settings.GetPlayerSettingsValue(player, "menutype", DefaultMenu);
-            return (MenuType)Enum.Parse(typeof(MenuType), res);
+            try
+            {
+                return (MenuType)Enum.Parse(typeof(MenuType), res);
+            }
+            catch(Exception _)
+            {
+                Control.GetPlugin().Logger.LogWarning($"Cannot cast MenuType for player {player.PlayerName} [{player.Slot}] (got value \"{res}\"). Using default {DefaultMenu}...");
+                return (MenuType)Enum.Parse(typeof(MenuType), DefaultMenu);
+            }
         }
 
         public static void SelectPlayerMenu(CCSPlayerController player, MenuType type)
         {
-            settings.SetPlayerSettingsValue(player, "menutype", Enum.GetName(type.GetType(), type));
+            var name = Enum.GetName(type.GetType(), type);
+            settings.SetPlayerSettingsValue(player, "menutype", name);
 
-            player.PrintToChat($"{Misc.ColorText(Control.GetPlugin().Localizer["menumanager.selected_type"])} {Misc.GetMenuTypeName(type)}");
+            player.PrintToChat($"{Control.GetPlugin().Localizer["menumanager.selected_type"]} {Misc.GetMenuTypeName(type)}");
         }
 
         public static string GetMenuTypeName(MenuType type)
@@ -63,6 +72,7 @@ namespace MenuManager
                 case MenuType.ConsoleMenu: return Control.GetPlugin().Localizer["menumanager.console"];
                 case MenuType.CenterMenu: return Control.GetPlugin().Localizer["menumanager.center"];
                 case MenuType.ButtonMenu: return Control.GetPlugin().Localizer["menumanager.control"];
+                case MenuType.MetamodMenu: return Control.GetPlugin().Localizer["menumanager.metamod"];
                 default: return "Undefined";
             }
         }
@@ -79,7 +89,7 @@ namespace MenuManager
 
             var colors = new List<string>(["Default", "White", "Darkred", "Green", "Lightyellow", "Lightblue", "Olive", "Lime", "Red", "Lightpurple", "Purple", "Grey", "Yellow", "Gold", "Silver", "Blue", "Darkblue", "Bluegrey", "Magenta", "Lightred", "Orange"]);
 
-            if(need_colors)
+            if (need_colors)
                 foreach (var color0 in colors)
                 {
                     var color = "[color:" + color0 + "]";
@@ -89,13 +99,16 @@ namespace MenuManager
                     new_text = new_text.Replace(color_old, rep, StringComparison.CurrentCultureIgnoreCase); // For some backward compatibility..?                    
                 }
             else
+            {
                 foreach (var color0 in colors)
                 {
                     var color = "[color:" + color0 + "]";
                     var color_old = "{" + color0 + "}";
                     new_text = new_text.Replace(color, "", StringComparison.CurrentCultureIgnoreCase);
-                    new_text = new_text.Replace(color_old, "", StringComparison.CurrentCultureIgnoreCase);                    
+                    new_text = new_text.Replace(color_old, "", StringComparison.CurrentCultureIgnoreCase);
                 }
+                new_text = new_text.Replace("</font>","");
+            }
             return new_text;
         }
                 

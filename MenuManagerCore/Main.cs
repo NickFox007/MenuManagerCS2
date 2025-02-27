@@ -22,14 +22,16 @@ public class PluginConfig : BasePluginConfig
     [JsonPropertyName("MoveWhileOpenMenu")] public bool MoveWhileOpenMenu { get; set; } = false;
     [JsonPropertyName("ButtonsConfig")] public ButtonsConfig ButtonsConfig { get; set; } = new ButtonsConfig();
     [JsonPropertyName("IgnoreErrors")] public bool IgnoreErrors { get; set; } = true;
-    [JsonPropertyName("MenuLinesCount")] public int MenuLinesCount { get; set; } = 7;
+    [JsonPropertyName("MenuLinesCount")] public int MenuLinesCount { get; set; } = 6;
+    [JsonPropertyName("UseMetamodMenu")] public bool UseMetamodMenu { get; set; } = false;
+    [JsonPropertyName("UseMetamodMenuReplace")] public bool UseMetamodMenuReplace { get; set; } = false;
 
 }
 
 public class MenuManagerCore : BasePlugin, IPluginConfig<PluginConfig>
 {
     public override string ModuleName => "MenuManager [Core]";
-    public override string ModuleVersion => "1.3";
+    public override string ModuleVersion => "1.4";
     public override string ModuleAuthor => "Nick Fox";
     public override string ModuleDescription => "All menus interacts in one core";
     public PluginConfig Config { get; set; }
@@ -56,7 +58,13 @@ public class MenuManagerCore : BasePlugin, IPluginConfig<PluginConfig>
         Control.Init(this);
         RegisterListener<Listeners.OnTick>(Control.OnPluginTick);
         RegisterListener<Listeners.OnMapStart>(OnMapStart);
-        if(hotReload) MenusMM.Init();
+        RegisterEventHandler<EventPlayerDisconnect>((@event, info) =>
+        {
+            if (Config.UseMetamodMenu)
+                MenusMM.ClearCallbackInfo(@event.Userid.Slot);
+            return HookResult.Continue;
+        }, HookMode.Pre);
+            if (hotReload) MenusMM.Init();
     }
 
     public void OnMapStart(string map)
@@ -81,12 +89,14 @@ public class MenuManagerCore : BasePlugin, IPluginConfig<PluginConfig>
     {
         if (player != null)
         {
-            var menu = _api.GetMenu(Misc.ColorText(Localizer["menumanager.select_type"]));
+            var menu = _api.GetMenu(Localizer["menumanager.select_type"]);
             menu.PostSelectAction = PostSelectAction.Close;
-            menu.AddMenuOption(Misc.ColorText(Localizer["menumanager.console"]), (player, option) => { Misc.SelectPlayerMenu(player, MenuType.ConsoleMenu); });
-            menu.AddMenuOption(Misc.ColorText(Localizer["menumanager.chat"]), (player, option) => { Misc.SelectPlayerMenu(player, MenuType.ChatMenu); });
-            menu.AddMenuOption(Misc.ColorText(Localizer["menumanager.center"]), (player, option) => { Misc.SelectPlayerMenu(player, MenuType.CenterMenu); });
-            menu.AddMenuOption(Misc.ColorText(Localizer["menumanager.control"]), (player, option) => { Misc.SelectPlayerMenu(player, MenuType.ButtonMenu); });
+            menu.AddMenuOption(Localizer["menumanager.console"], (player, option) => { Misc.SelectPlayerMenu(player, MenuType.ConsoleMenu); });
+            menu.AddMenuOption(Localizer["menumanager.chat"], (player, option) => { Misc.SelectPlayerMenu(player, MenuType.ChatMenu); });
+            menu.AddMenuOption(Localizer["menumanager.center"], (player, option) => { Misc.SelectPlayerMenu(player, MenuType.CenterMenu); });
+            menu.AddMenuOption(Localizer["menumanager.control"], (player, option) => { Misc.SelectPlayerMenu(player, MenuType.ButtonMenu); });
+            if(Config.UseMetamodMenu && !Config.UseMetamodMenuReplace) menu.AddMenuOption(Localizer["menumanager.metamod"], (player, option) => { Misc.SelectPlayerMenu(player, MenuType.MetamodMenu); });
+            
             menu.Open(player);
         }
     }

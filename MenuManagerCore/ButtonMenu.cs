@@ -13,11 +13,13 @@ namespace MenuManager
     {
         public Action<CCSPlayerController> BackAction = null;
         public Action<CCSPlayerController> ResetAction = null;
+        public bool Metamod = false;
 
-        public ButtonMenu(string _title)
+        public ButtonMenu(string _title, bool _metamod = false)
         {
             MenuOptions = new List<ChatMenuOption>();
             Title = _title;
+            Metamod = _metamod;
         }
         public string Title { get; set; }
 
