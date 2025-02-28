@@ -345,6 +345,8 @@ internal static class MenusMM
     {
         hooked = false;
         Control.GetPlugin().Logger.LogInformation($"Metamod MenusApi found but couldnt hook it! [Code: {i}]");
+        Control.GetPlugin().Config.UseMetamodMenu = false;
+        Control.GetPlugin().Config.UseMetamodMenuReplace = false;
     }
 
     private static void AddCallbackInfo(int slot, MM_MenuCallbackFunc func)
@@ -390,13 +392,15 @@ internal static class MenusMM
             if (iItem < 7)
             {
                 var index = int.Parse(szBack);
+                if(menu.PostSelectAction != PostSelectAction.Nothing)
+                    ClosePlayerMenu(iSlot);
                 menu.MenuOptions[index].OnSelect(player, menu.MenuOptions[index]);
 
                 
                 switch (menu.PostSelectAction)
                 {
                     case PostSelectAction.Close: ClosePlayerMenu(iSlot); Control.CloseMenu(Utilities.GetPlayerFromSlot(iSlot)); break;                    
-                    case PostSelectAction.Reset: ClosePlayerMenu(iSlot); if (menu.ResetAction != null) Server.NextFrameAsync(() => menu.ResetAction(player)); break;
+                    case PostSelectAction.Reset: if (menu.ResetAction != null && !Control.HasOpenedMenu(player)) Server.NextFrameAsync(() => menu.ResetAction(player)); break;
                 }
 
             }

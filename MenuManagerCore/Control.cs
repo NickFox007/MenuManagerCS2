@@ -105,7 +105,7 @@ internal static class Control
                         continue;
                     }
                 }
-
+                                
                 menu.GetPlayer().PrintToCenterHtml(menu.GetText(), 1);
             }
         }
