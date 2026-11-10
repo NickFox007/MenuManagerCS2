@@ -18,22 +18,24 @@ internal static class Control
 
     public static void AddMenu(CCSPlayerController player, ButtonMenu inst)
     {
-        float old_mod = 0.0f;
         int old_selected = 0;
         string old_title = "";
         int old_offset = 0;
         for(int i = 0; i < menus.Count; i++)
             if (menus[i].GetPlayer() == player)
             {
-                old_mod = menus[i].GetMod();
-                old_selected = menus[i].Selected();
-                old_title = menus[i].menu.Title;
-                old_offset = menus[i].Offset();
+                menus[i].RestoreMovement();
+                if (menus[i].IsCurrentPlayer())
+                {
+                    old_selected = menus[i].Selected();
+                    old_title = menus[i].menu.Title;
+                    old_offset = menus[i].Offset();
+                }
                 menus.Remove(menus[i]);
-                i++;
+                i--;
             }
 
-        var menu = new PlayerInfo(player, inst, old_mod, old_selected, old_offset, old_title);            
+        var menu = new PlayerInfo(player, inst, null, old_selected, old_offset, old_title);
         menus.Add(menu);
     }
 
@@ -49,6 +51,7 @@ internal static class Control
 
     public static void Clear()
     {            
+        foreach (var menu in menus) menu.RestoreMovement();
         menus.RemoveAll(x => true);
     }
 
@@ -67,19 +70,28 @@ internal static class Control
                     continue;
                 }
                 var player = menu.GetPlayer();
-                if(!Misc.IsValidPlayer(player))
+                if(!menu.IsCurrentPlayer() || !Misc.IsValidPlayer(player))
                 {
+                    menu.RestoreMovement();
                     menus.RemoveAt(i);
                     i--;
+                    continue;
+                }
+                if (menu.Closed())
+                {
+                    menu.RestoreMovement();
+                    menus.RemoveAt(i--);
                     continue;
                 }
                 PlayerButtons buttons = 0;
 
                 buttons = player.Buttons;
                 if(!hPlugin.Config.MoveWhileOpenMenu)
-                    player.PlayerPawn.Value.VelocityModifier = 0.0f;
+                    menu.ApplyMovementLock();
+                else
+                    menu.RestoreMovement();
                 
-                if (!menu.IsEqualButtons(buttons.ToString()))
+                if (!menu.IsEqualButtons(buttons))
                 {
 
                     if (buttons.HasFlag(hPlugin.Config.ButtonsConfig.UpButton))
@@ -95,18 +107,34 @@ internal static class Control
                     else if (buttons.HasFlag(hPlugin.Config.ButtonsConfig.BackButton) && menu.menu.BackAction != null)
                         menu.menu.BackAction(player);
 
+                    // Selection/back callbacks may replace or remove this menu.
+                    if (i >= menus.Count || !ReferenceEquals(menus[i], menu))
+                    {
+                        i--;
+                        continue;
+                    }
+                    if (!menu.IsCurrentPlayer() || !Misc.IsValidPlayer(player))
+                    {
+                        menu.RestoreMovement();
+                        menus.RemoveAt(i--);
+                        continue;
+                    }
                     if (buttons.HasFlag(hPlugin.Config.ButtonsConfig.ExitButton) || menu.Closed())
                     {                            
                         menu.Close(true);
-                        if (!hPlugin.Config.MoveWhileOpenMenu)
-                            player.PlayerPawn.Value.VelocityModifier = menu.GetMod();
+                        menu.RestoreMovement();
                         menus.RemoveAt(i);
                         i--;
                         continue;
                     }
                 }
+                if (i >= menus.Count || !ReferenceEquals(menus[i], menu))
+                {
+                    i--;
+                    continue;
+                }
                                 
-                menu.GetPlayer().PrintToCenterHtml(menu.GetText(), 1);
+                player.PrintToCenterHtml(menu.GetText(), 1);
             }
         }
     }
