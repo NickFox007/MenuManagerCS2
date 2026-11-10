@@ -31,7 +31,7 @@ public class PluginConfig : BasePluginConfig
 public class MenuManagerCore : BasePlugin, IPluginConfig<PluginConfig>
 {
     public override string ModuleName => "MenuManager [Core]";
-    public override string ModuleVersion => "1.4.1";
+    public override string ModuleVersion => "1.4.1-perf.3";
     public override string ModuleAuthor => "Nick Fox";
     public override string ModuleDescription => "All menus interacts in one core";
     public PluginConfig Config { get; set; }
@@ -58,6 +58,7 @@ public class MenuManagerCore : BasePlugin, IPluginConfig<PluginConfig>
         Control.Init(this);
         RegisterListener<Listeners.OnTick>(Control.OnPluginTick);
         RegisterListener<Listeners.OnMapStart>(OnMapStart);
+        RegisterListener<Listeners.OnMapEnd>(Control.Clear);
         RegisterEventHandler<EventPlayerDisconnect>((@event, info) =>
         {
             if (Config.UseMetamodMenu)
@@ -69,6 +70,7 @@ public class MenuManagerCore : BasePlugin, IPluginConfig<PluginConfig>
 
     public void OnMapStart(string map)
     {
+        Control.Clear();
         MenusMM.Init();
     }
 

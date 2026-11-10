@@ -22,18 +22,29 @@ namespace MenuManager
         private int offset;
         private int selected;
         private float prev_mod;
-        private string prev_buttons;
+        private PlayerButtons prev_buttons;
         private bool closed;
+        private nint pawnHandle;
+        private uint pawnIdentity;
+        private readonly uint playerIdentity;
+        private bool movementLocked;
+        private string? cachedText;
+        private string? cachedTitle, cachedSelected, cachedEmpty, cachedFooter;
+        private int cachedOffset, cachedSelection, cachedLines, cachedCount;
+        private ChatMenuOption[] cachedOptions = Array.Empty<ChatMenuOption>();
+        private string?[] cachedLabels = Array.Empty<string?>();
+        private bool[] cachedDisabled = Array.Empty<bool>();
 
-        public PlayerInfo(CCSPlayerController _player, ButtonMenu _menu, float new_mod = 0.0f, int new_selected = 0, int new_offset = 0, string old_title = "")
+        public PlayerInfo(CCSPlayerController _player, ButtonMenu _menu, float? new_mod = null, int new_selected = 0, int new_offset = 0, string old_title = "")
         {
             player = _player;
             menu = _menu;
+            playerIdentity = player.EntityHandle.Raw;
             
-            if(new_mod == 0.0f)
-                prev_mod = player.PlayerPawn.Value.VelocityModifier;
-            else
-                prev_mod = new_mod;
+            var pawn = player.PlayerPawn.Value;
+            pawnHandle = pawn is { IsValid: true } ? pawn.Handle : 0;
+            pawnIdentity = player.PlayerPawn.Raw;
+            prev_mod = new_mod ?? (pawnHandle != 0 ? pawn!.VelocityModifier : 1.0f);
 
             closed = false;
             offset = 0;
@@ -47,7 +58,7 @@ namespace MenuManager
             }
             else
                 selected = 0;
-            prev_buttons = player.Buttons.ToString();
+            prev_buttons = player.Buttons;
         }
 
         public int Offset()
@@ -65,24 +76,75 @@ namespace MenuManager
             return prev_mod;
         }
 
+        public nint PawnHandle => pawnHandle;
+
+        public bool IsCurrentPlayer() => player.IsValid && player.EntityHandle.Raw == playerIdentity;
+
         public string GetText()
         {
+            var config = Control.GetPlugin().Config;
+            var selectedText = Control.GetPlugin().Localizer["menumanager.selected_item"].Value;
+            var emptyText = Control.GetPlugin().Localizer["menumanager.empty"].Value;
+            var footerText = Control.GetPlugin().Localizer["menumanager.footer"].Value;
+            var count = menu.MenuOptions.Count;
+            if (cachedCount != count || cachedLines != config.MenuLinesCount)
+            {
+                // Direct option mutations or a smaller page must not leave the
+                // selection outside the list or the visible page.
+                selected = Math.Clamp(selected, 0, Math.Max(0, count - 1));
+                offset = Math.Clamp(offset, Math.Max(0, selected - config.MenuLinesCount + 1), selected);
+            }
+            var end = Math.Min(offset + config.MenuLinesCount, count);
+            var visible = Math.Max(0, end - offset);
+            var dirty = cachedText == null || cachedTitle != menu.Title || cachedSelected != selectedText ||
+                cachedEmpty != emptyText || cachedFooter != footerText || cachedOffset != offset ||
+                cachedSelection != selected || cachedLines != config.MenuLinesCount || cachedCount != count ||
+                cachedOptions.Length != visible;
+            if (!dirty)
+                for (int j = 0; j < visible; j++)
+                {
+                    var option = menu.MenuOptions[offset + j];
+                    if (!ReferenceEquals(cachedOptions[j], option) || cachedLabels[j] != option.Text || cachedDisabled[j] != option.Disabled)
+                    {
+                        dirty = true;
+                        break;
+                    }
+                }
+            if (!dirty) return cachedText!;
+
             string text = $"<font class='mono-spaced-font'>{menu.Title}</font><font class='fontSize-sm stratum-font'>";
             
             if(menu.MenuOptions.Count > 0)            
-                for (int i = offset; i < Math.Min(offset + Control.GetPlugin().Config.MenuLinesCount, menu.MenuOptions.Count); i++)
+                for (int i = offset; i < end; i++)
                 {
                     var line = menu.MenuOptions[i].Text;
                     if (menu.MenuOptions[i].Disabled) line = $"<font color='#aaaaaa'>{Misc.ColorText(line, false)}</font>";
-                    if (i == selected) line = Control.GetPlugin().Localizer["menumanager.selected_item"].Value.Replace("[MENUITEM]", line);
+                    if (i == selected) line = selectedText.Replace("[MENUITEM]", line);
 
 
                     text = text + "<br>" + line;
                 }
             else
-                text = $"{text}<br><font color='#aaaaaa'>{Control.GetPlugin().Localizer["menumanager.empty"]}</font>";
+                text = $"{text}<br><font color='#aaaaaa'>{emptyText}</font>";
 
-            text = Misc.ColorText(text + $"</font><br><font class='fontSize-s'>{Control.GetPlugin().Localizer["menumanager.footer"]}</font>");
+            text = Misc.ColorText(text + $"</font><br><font class='fontSize-s'>{footerText}</font>");
+
+            if (cachedOptions.Length != visible)
+            {
+                cachedOptions = new ChatMenuOption[visible];
+                cachedLabels = new string?[visible];
+                cachedDisabled = new bool[visible];
+            }
+            for (int j = 0; j < visible; j++)
+            {
+                var option = menu.MenuOptions[offset + j];
+                cachedOptions[j] = option;
+                cachedLabels[j] = option.Text;
+                cachedDisabled[j] = option.Disabled;
+            }
+            cachedTitle = menu.Title; cachedSelected = selectedText; cachedEmpty = emptyText; cachedFooter = footerText;
+            cachedOffset = offset; cachedSelection = selected; cachedLines = config.MenuLinesCount; cachedCount = count;
+            cachedText = text;
 
             return text;
         }
@@ -117,9 +179,9 @@ namespace MenuManager
             return true;
         }
 
-        public bool IsEqualButtons(string buttons)
+        public bool IsEqualButtons(PlayerButtons buttons)
         {
-            var flag = prev_buttons.Equals(buttons);
+            var flag = prev_buttons == buttons;
             prev_buttons = buttons;
             return flag;
         }
@@ -180,6 +242,32 @@ namespace MenuManager
         public bool Closed()
         {
             return closed;
+        }
+
+        public void ApplyMovementLock()
+        {
+            if (!IsCurrentPlayer()) return;
+            var pawn = player.PlayerPawn.Value;
+            if (pawn is not { IsValid: true }) return;
+            // A respawn may reuse the native address with a different serial.
+            // Capture the new pawn's own modifier before taking its lock.
+            if (!movementLocked || pawn.Handle != pawnHandle || player.PlayerPawn.Raw != pawnIdentity)
+            {
+                prev_mod = pawn.VelocityModifier;
+                pawnHandle = pawn.Handle;
+                pawnIdentity = player.PlayerPawn.Raw;
+                movementLocked = true;
+            }
+            pawn.VelocityModifier = 0.0f;
+        }
+
+        public void RestoreMovement()
+        {
+            if (!movementLocked) return;
+            var pawn = IsCurrentPlayer() ? player.PlayerPawn.Value : null;
+            if (pawn is { IsValid: true } && pawn.Handle == pawnHandle && player.PlayerPawn.Raw == pawnIdentity)
+                pawn.VelocityModifier = prev_mod;
+            movementLocked = false;
         }
 
     }
